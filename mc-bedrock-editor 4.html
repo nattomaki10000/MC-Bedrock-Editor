@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MC Bedrock Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--bdr:#30363d;--grn:#3fb950;--gdim:#1a4429;--yel:#d29922;--blu:#58a6ff;--red:#f85149;--ora:#ffa657;--txt:#e6edf3;--mut:#7d8590;--mono:'Share Tech Mono',monospace;--pix:'VT323',monospace;}
+*{box-sizing:border-box;margin:0;padding:0;}html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:11px;display:flex;flex-direction:column;}
+header{background:var(--bg2);border-bottom:2px solid var(--grn);padding:5px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.logo{font-family:var(--pix);font-size:21px;color:var(--grn);letter-spacing:3px;display:flex;align-items:center;gap:6px;}
+.sub{color:var(--mut);font-size:9px;margin-top:1px;}
+.hbadges{margin-left:auto;display:flex;gap:4px;align-items:center;}
+.hbadge{background:var(--gdim);color:var(--grn);border:1px solid var(--grn);padding:1px 5px;font-size:8px;}
+.hbadge.wasm{background:#1a1a3d;border-color:var(--blu);color:var(--blu);}
+.credit{font-size:8px;color:var(--mut);margin-left:7px;}.credit b{color:var(--grn);}
+.app{display:flex;flex:1;overflow:hidden;min-height:0;}
+aside{width:252px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;}
+.sb-head{padding:5px 10px;border-bottom:1px solid var(--bdr);font-size:8px;color:var(--mut);letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:4px;flex-shrink:0;}
+.upzone{margin:4px;border:1px dashed var(--bdr);padding:4px 6px;text-align:center;cursor:pointer;position:relative;transition:all .2s;flex-shrink:0;display:flex;align-items:center;gap:6px;}
+.upzone:hover,.upzone.over{border-color:var(--grn);background:var(--gdim);}
+.upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.uplbl{color:var(--grn);font-size:9px;display:block;}
+.uphint{color:var(--mut);font-size:8px;}
+.wlist{max-height:148px;overflow-y:auto;}
+.witem{border-left:3px solid transparent;border-bottom:1px solid #1c212844;cursor:pointer;transition:background .1s;}
+.witem:hover{background:var(--bg3);}
+.witem.act{background:var(--bg3);border-left-color:var(--grn);}
+.wi-row{display:flex;align-items:center;gap:5px;padding:5px 8px;}
+.wi-name{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+.witem.act .wi-name{color:var(--grn);}
+.wi-stats{padding:1px 8px 4px 25px;display:flex;gap:6px;flex-wrap:wrap;}
+.wst{font-size:8px;color:var(--mut);display:flex;align-items:center;gap:2px;}
+.wst b{color:var(--grn);}.wst.p b{color:var(--ora);}.wst.e b{color:var(--red);}
+main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--bdr);flex-shrink:0;}
+.tab{background:none;border:none;border-right:1px solid var(--bdr);padding:5px 11px;color:var(--mut);font-family:var(--mono);font-size:9px;cursor:pointer;display:flex;align-items:center;gap:3px;transition:all .15s;letter-spacing:.5px;}
+.tab:hover{color:var(--txt);background:var(--bg3);}
+.tab.act{color:var(--grn);background:var(--bg3);border-bottom:2px solid var(--grn);margin-bottom:-1px;}
+.tbadge{background:var(--gdim);color:var(--grn);font-size:7px;padding:1px 3px;border:1px solid var(--grn);}
+.pane{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;}
+.pane.hide{display:none;}
+.tb{padding:4px 9px;background:var(--bg2);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:4px;flex-shrink:0;flex-wrap:wrap;}
+.tpath{font-size:9px;color:var(--mut);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+.tpath b{color:var(--grn);}
+.btn{background:var(--bg3);color:var(--txt);border:1px solid var(--bdr);padding:2px 7px;font-family:var(--mono);font-size:9px;cursor:pointer;display:flex;align-items:center;gap:2px;white-space:nowrap;transition:all .15s;}
+.btn:hover{border-color:var(--grn);color:var(--grn);}
+.btn.prim{background:var(--gdim);border-color:var(--grn);color:var(--grn);}
+.btn.dng{color:var(--red);border-color:#f8514933;}.btn.dng:hover{border-color:var(--red);background:#1a0808;}
+.btn:disabled{opacity:.3;pointer-events:none;}
+.sep{width:1px;height:12px;background:var(--bdr);flex-shrink:0;}
+.srch{display:none;padding:3px 9px;background:var(--bg3);border-bottom:1px solid var(--bdr);gap:4px;align-items:center;flex-shrink:0;}
+.srch.on{display:flex;}
+.sinput{flex:1;background:var(--bg);border:1px solid var(--bdr);color:var(--txt);font-family:var(--mono);font-size:10px;padding:2px 5px;outline:none;}
+.sinput:focus{border-color:var(--grn);}
+.content{flex:1;overflow-y:auto;padding:7px 9px;background:var(--bg);}
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-thumb{background:var(--bdr);}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:8px;color:var(--mut);text-align:center;}
+.empty h2{font-family:var(--pix);font-size:20px;letter-spacing:3px;}
+.empty p{font-size:9px;line-height:1.8;}
+/* FILE TREE */
+.ft-sect{display:none;flex-direction:column;border-top:2px solid var(--bdr);flex:1;min-height:0;background:var(--bg2);}
+.ft-sect.on{display:flex;}
+.ft-head{padding:4px 7px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:3px;flex-shrink:0;}
+.ft-title{font-size:8px;color:var(--mut);letter-spacing:2px;text-transform:uppercase;flex:1;}
+.ft-hbtn{background:none;border:1px solid var(--bdr);color:var(--mut);font-family:var(--mono);font-size:8px;padding:2px 4px;cursor:pointer;display:flex;align-items:center;gap:2px;transition:all .15s;}
+.ft-hbtn:hover{border-color:var(--grn);color:var(--grn);}
+.ft-wrap{flex:1;overflow-y:auto;padding:2px 0;}
+.ft-node{}
+.ft-row{display:flex;align-items:center;gap:2px;padding:2px 3px;cursor:pointer;position:relative;white-space:nowrap;min-width:0;}
+.ft-row:hover{background:var(--bg3);}
+.ft-row.ft-sel{background:var(--gdim);}
+.ft-row:hover .ft-acts,.ft-row.ft-sel .ft-acts{display:flex;}
+.ft-acts{display:none;position:absolute;right:2px;top:0;bottom:0;align-items:center;gap:1px;background:var(--bg3);padding:0 2px;z-index:2;}
+.ft-tog{width:9px;flex-shrink:0;text-align:center;font-size:8px;color:var(--mut);user-select:none;}
+.ft-ico{flex-shrink:0;font-size:8px;margin-right:1px;}
+.ft-ico.dir{color:var(--yel);}
+.ft-ico.file{color:var(--blu);}
+.ft-ico.file.dat{color:var(--grn);}
+.ft-ico.file.txt{color:var(--mut);}
+.ft-lbl{font-size:9px;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+.ft-lbl.dir{color:var(--yel);}
+.ft-lbl.file{}
+.ft-ch{margin-left:11px;border-left:1px dotted var(--bdr);padding-left:2px;}
+.ft-ch.col{display:none;}
+.ftbtn{background:none;border:none;color:var(--mut);font-family:var(--mono);font-size:8px;padding:1px 3px;cursor:pointer;display:flex;align-items:center;}
+.ftbtn:hover{color:var(--grn);}
+.ftbtn.del:hover{color:var(--red);}
+/* File Edit Modal */
+.ft-modal{display:none;position:fixed;inset:0;background:#0d111788;z-index:500;align-items:center;justify-content:center;}
+.ft-modal.on{display:flex;}
+.ft-mbox{background:var(--bg2);border:1px solid var(--grn);width:630px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;}
+.ft-mtitle{padding:7px 11px;border-bottom:1px solid var(--bdr);font-size:9px;display:flex;align-items:center;gap:5px;}
+.ft-mtitle b{color:var(--grn);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ft-mtextarea{flex:1;min-height:200px;resize:none;background:var(--bg);border:none;border-bottom:1px solid var(--bdr);color:var(--txt);font-family:var(--mono);font-size:10px;padding:7px;outline:none;}
+.ft-mfooter{padding:5px 9px;display:flex;align-items:center;gap:5px;justify-content:flex-end;}
+.ft-hexview{flex:1;min-height:120px;overflow:auto;background:var(--bg);border-bottom:1px solid var(--bdr);padding:5px 7px;font-size:9px;color:var(--mut);white-space:pre;font-family:var(--mono);}
+/* New name input inline */
+.ft-newinput{background:var(--bg);border:1px solid var(--grn);color:var(--txt);font-family:var(--mono);font-size:9px;padding:1px 4px;outline:none;width:110px;}
+/* NBT */
+.ntree{font-size:10px;line-height:1.5;}
+.nnode{margin:0;}
+.nrow{display:flex;align-items:center;gap:3px;padding:1px 2px;border-radius:2px;position:relative;}
+.nrow:hover{background:var(--bg2);}
+.nrow:hover .nacts{display:flex;}
+.nacts{display:none;position:absolute;right:4px;top:0;bottom:0;align-items:center;gap:2px;background:var(--bg2);padding:0 2px;}
+.ntog{width:10px;flex-shrink:0;cursor:pointer;user-select:none;text-align:center;}
+.nicon{flex-shrink:0;font-size:7px;font-weight:bold;padding:1px 2px;border-radius:2px;min-width:22px;text-align:center;}
+.nname{color:var(--blu);flex-shrink:0;}
+.nidx{color:var(--mut);font-style:italic;flex-shrink:0;}
+.ncol{color:var(--mut);flex-shrink:0;}
+.nval{flex:1;display:flex;align-items:center;gap:3px;min-width:0;}
+.ni{background:transparent;border:none;border-bottom:1px solid transparent;color:inherit;font-family:var(--mono);font-size:10px;outline:none;min-width:32px;max-width:306px;}
+.ni:focus{border-bottom-color:var(--grn);background:var(--gdim);padding:0 2px;}
+.ni.mod{color:var(--yel);}
+.nmeta{color:var(--mut);font-size:8px;flex-shrink:0;}
+.nch{margin-left:12px;border-left:1px solid var(--bdr);padding-left:4px;}
+.nch.col{display:none;}
+.nadd{display:flex;align-items:center;gap:4px;padding:3px 2px;margin-top:2px;flex-wrap:wrap;}
+.nadd select,.nadd input{background:var(--bg3);border:1px solid var(--bdr);color:var(--txt);font-family:var(--mono);font-size:9px;padding:2px 4px;outline:none;}
+.nadd select:focus,.nadd input:focus{border-color:var(--grn);}
+.t1{background:#3d1a1a;color:#ffaaaa;}.t2{background:#1a2d3d;color:#7ccfcf;}
+.t3{background:#1a2a3d;color:#58a6ff;}.t4{background:#2a1a3d;color:#bc8cff;}
+.t5{background:#2d2a1a;color:#d29922;}.t6{background:#1d2a1a;color:#3fb950;}
+.t7{background:#2d1a2a;color:#f778ba;}.t8{background:#2a2a1a;color:#ffa657;}
+.t9{background:#1a1a2a;color:#8b949e;}.t10{background:#1a2d1a;color:#56d364;}
+.t11{background:#2a1a1a;color:#f85149;}.t12{background:#1a1a2d;color:#79c0ff;}
+/* DB */
+.dbadd{padding:4px 9px;background:var(--bg2);border-bottom:1px solid var(--bdr);display:flex;gap:4px;align-items:center;flex-shrink:0;flex-wrap:wrap;}
+.hexin{background:var(--bg);border:1px solid var(--bdr);color:var(--txt);font-family:var(--mono);font-size:9px;padding:2px 4px;outline:none;min-width:0;}
+.hexin:focus{border-color:var(--grn);}
+table.dbt{width:100%;border-collapse:collapse;font-size:9px;}
+table.dbt th{background:var(--bg2);color:var(--mut);text-align:left;padding:3px 6px;font-size:8px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:1;}
+table.dbt td{padding:3px 6px;border-bottom:1px solid #1c212866;vertical-align:middle;}
+table.dbt tr:hover td{background:var(--bg3);}
+.ktag{font-size:7px;padding:1px 3px;border:1px solid;border-radius:2px;white-space:nowrap;}
+.ktag.chunk{border-color:#3fb95044;color:var(--grn);}
+.ktag.player{border-color:#ffa65744;color:var(--ora);}
+.ktag.other{border-color:#30363d;color:var(--mut);}
+.kstr{max-width:162px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt);}
+/* MAP */
+.mapwrap{flex:1;display:flex;overflow:hidden;min-height:0;position:relative;}
+#mapCanvas{display:block;cursor:crosshair;}
+#mapCanvas.pan{cursor:grabbing;}
+.cinfo{width:153px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--bdr);padding:7px;overflow-y:auto;font-size:9px;display:flex;flex-direction:column;gap:3px;}
+.cit{font-size:8px;letter-spacing:2px;color:var(--mut);padding-bottom:3px;border-bottom:1px solid var(--bdr);text-transform:uppercase;}
+.cir{display:flex;justify-content:space-between;gap:4px;}
+.cik{color:var(--mut);}.civ{color:var(--txt);text-align:right;}
+.civ.g{color:var(--grn);}.civ.y{color:var(--yel);}
+.mleg{position:absolute;bottom:5px;left:5px;background:#0d111799;border:1px solid var(--bdr);padding:3px 6px;display:flex;flex-direction:column;gap:3px;pointer-events:none;}
+.lr{display:flex;align-items:center;gap:5px;font-size:8px;color:var(--mut);}
+.lb{width:8px;height:8px;border:1px solid;}
+.selcnt{margin-top:auto;padding-top:3px;border-top:1px solid var(--bdr);color:var(--yel);font-size:9px;}
+/* Players */
+.plr-wrap{flex:1;display:flex;overflow:hidden;min-height:0;}
+.plr-list{width:140px;flex-shrink:0;border-right:1px solid var(--bdr);overflow-y:auto;background:var(--bg2);}
+.plr-item{padding:5px 8px;cursor:pointer;display:flex;align-items:center;gap:4px;border-left:3px solid transparent;border-bottom:1px solid #1c212866;transition:all .1s;}
+.plr-item:hover{background:var(--bg3);}
+.plr-item.act{background:var(--bg3);border-left-color:var(--grn);}
+.plr-name{font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+.plr-item.act .plr-name{color:var(--grn);}
+.plr-badge{font-size:7px;padding:1px 3px;border:1px solid;flex-shrink:0;}
+.plr-badge.host{border-color:#ffa65744;color:var(--ora);}
+.plr-badge.guest{border-color:#58a6ff44;color:var(--blu);}
+.status{background:var(--gdim);border-top:1px solid var(--grn);padding:3px 10px;font-size:8px;color:var(--grn);display:flex;gap:10px;align-items:center;flex-shrink:0;}
+#sMod{display:none;color:var(--yel);}
+.serr{color:var(--red)!important;}
+#ld{position:fixed;inset:0;background:#0d1117dd;display:none;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:8px;}
+.ldt{font-family:var(--pix);font-size:18px;color:var(--grn);}
+.ldp{font-size:8px;color:var(--mut);max-width:234px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+@keyframes blink{to{opacity:0;}}.dot{animation:blink .7s infinite alternate;}
+</style>
+</head>
+<body>
+<div id="ld"><div class="ldt">Processing<span class="dot">...</span></div><div class="ldp" id="ldp"></div></div>
+<svg style="display:none"><defs>
+<symbol id="i-pick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2.5l7 7-3.5 3.5L11 6z"/><line x1="11" y1="6" x2="3" y2="21"/><line x1="14.5" y1="9.5" x2="9" y2="15"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></symbol>
+<symbol id="i-world" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></symbol>
+<symbol id="i-db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></symbol>
+<symbol id="i-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+<symbol id="i-exp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></symbol>
+<symbol id="i-col" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/></symbol>
+<symbol id="i-srch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18h20.36z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r=".5" fill="currentColor"/></symbol>
+<symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="i-folder-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><polyline points="2 12 7 12 9 15 15 15 17 12 22 12"/></symbol>
+<symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+<symbol id="i-folder-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></symbol>
+ fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></symbol>
+<symbol id="i-cr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="i-zo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></symbol>
+<symbol id="i-zi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></symbol>
+<symbol id="i-sel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+</defs></svg>
+
+<header>
+  <div>
+    <div class="logo"><svg width="20" height="20" style="stroke:var(--grn)"><use href="#i-pick"/></svg>MC BEDROCK EDITOR</div>
+    <div class="sub">Minecraft 統合版ワールドエディタ — LevelDB / NBT / Chunk Map</div>
+  </div>
+  <div class="hbadges">
+    <span class="hbadge">統合版専用</span>
+    <span class="hbadge wasm">⬡ WASM</span>
+    <span class="hbadge">LevelDB</span>
+    <span class="hbadge">Snappy</span>
+  </div>
+  <div class="credit">made by <b>nattomaki10000</b></div>
+</header>
+
+<div class="app">
+  <aside>
+    <div class="sb-head"><svg width="10" height="10" style="stroke:var(--mut)"><use href="#i-world"/></svg>ワールド一覧</div>
+    <div class="upzone" id="dz">
+      <input type="file" id="fi" multiple accept="*/*">
+      <svg width="14" height="14" style="stroke:var(--mut);flex-shrink:0"><use href="#i-up"/></svg>
+      <div style="text-align:left;min-width:0;">
+        <span class="uplbl">ワールドをアップロード</span>
+        <span class="uphint">.mcworld をドロップ / 選択</span>
+      </div>
+    </div>
+    <div class="wlist" id="wlist">
+      <div id="wlistEmpty" style="padding:12px;color:var(--mut);font-size:9px;text-align:center;line-height:2">ワールドファイル (.mcworld) を<br>アップロードするとここに表示されます</div>
+    </div>
+    <!-- File Tree -->
+    <div class="ft-sect" id="ft-sect">
+      <div class="ft-head">
+        <span class="ft-title"><svg width="9" height="9" style="stroke:var(--mut)"><use href="#i-folder"/></svg>&nbsp;ファイルツリー</span>
+        <button class="ft-hbtn" id="ft-btn-upload" title="ファイルをここにアップロード"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-up"/></svg>Upload</button>
+        <button class="ft-hbtn" id="ft-btn-newfile" title="新規ファイル"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-file"/></svg>+File</button>
+        <button class="ft-hbtn" id="ft-btn-newdir" title="新規フォルダ"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-folder-plus"/></svg>+Dir</button>
+      </div>
+      <div class="ft-wrap" id="ft-wrap"></div>
+      <input type="file" id="ft-upload-input" multiple style="display:none">
+    </div>
+  </aside>
+  <main>
+    <div class="tabs">
+      <button class="tab act" data-tab="dat"><svg width="11" height="11" style="stroke:currentColor"><use href="#i-file"/></svg>level.dat</button>
+      <button class="tab" data-tab="db"><svg width="11" height="11" style="stroke:currentColor"><use href="#i-db"/></svg>DB<span class="tbadge" id="tc-db" style="display:none">0</span></button>
+      <button class="tab" data-tab="map"><svg width="11" height="11" style="stroke:currentColor"><use href="#i-map"/></svg>チャンクマップ<span class="tbadge" id="tc-map" style="display:none">0</span></button>
+      <button class="tab" data-tab="plr"><svg width="11" height="11" style="stroke:currentColor"><use href="#i-user"/></svg>プレイヤー<span class="tbadge" id="tc-plr" style="display:none">0</span></button>
+    </div>
+    <!-- level.dat -->
+    <div class="pane" data-pane="dat">
+      <div class="tb">
+        <div class="tpath" id="dat-path"><b>level.dat</b> — ワールドを選択してください</div>
+        <button class="btn" id="btn-exp" disabled><svg width="10" height="10" style="stroke:currentColor"><use href="#i-exp"/></svg>展開</button>
+        <button class="btn" id="btn-col" disabled><svg width="10" height="10" style="stroke:currentColor"><use href="#i-col"/></svg>折り畳み</button>
+        <button class="btn prim" id="btn-dat-save" disabled><svg width="10" height="10" style="stroke:currentColor"><use href="#i-save"/></svg>保存してDL</button>
+      </div>
+      <div class="srch" id="srch">
+        <svg width="11" height="11" style="stroke:var(--mut)"><use href="#i-srch"/></svg>
+        <input class="sinput" id="s-input" placeholder="タグを検索..." autocomplete="off" spellcheck="false">
+        <button class="btn" id="btn-s-clr" style="padding:2px 5px"><svg width="10" height="10" style="stroke:currentColor"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="content" id="dat-content">
+        <div class="empty"><svg width="38" height="38" style="stroke:var(--bdr)"><use href="#i-world"/></svg><h2>NO WORLD</h2><p>左からワールドをアップロードしてください</p></div>
+      </div>
+    </div>
+    <!-- DB Browser -->
+    <div class="pane hide" data-pane="db">
+      <div class="dbadd">
+        <span style="font-size:9px;color:var(--mut);flex-shrink:0">Key:</span>
+        <input class="hexin" id="db-add-key" placeholder="~local_player または hex" style="flex:2;min-width:120px">
+        <span style="font-size:9px;color:var(--mut);flex-shrink:0">Value (hex):</span>
+        <input class="hexin" id="db-add-val" placeholder="0a 00 ..." style="flex:3;min-width:100px">
+        <button class="btn prim" id="btn-db-add"><svg width="10" height="10" style="stroke:currentColor"><use href="#i-plus"/></svg>追加</button>
+        <div class="sep"></div>
+        <input class="sinput" id="db-search" placeholder="キー検索..." style="max-width:150px;font-size:10px;padding:2px 6px">
+      </div>
+      <div class="content" id="db-content" style="padding:0;overflow-x:auto">
+        <div class="empty"><svg width="34" height="34" style="stroke:var(--bdr)"><use href="#i-db"/></svg><h2>NO DB</h2><p>LevelDBを含むワールドを選択してください</p></div>
+      </div>
+    </div>
+    <!-- Chunk Map -->
+    <div class="pane hide" data-pane="map">
+      <div class="tb">
+        <button class="btn" id="btn-zo"><svg width="11" height="11" style="stroke:currentColor"><use href="#i-zo"/></svg></button>
+        <span id="z-lbl" style="font-size:10px;color:var(--mut);min-width:58px;text-align:center">4px/ch</span>
+        <button class="btn" id="btn-zi"><svg width="11" height="11" style="stroke:currentColor"><use href="#i-zi"/></svg></button>
+        <div class="sep"></div>
+        <button class="btn" id="btn-sel-all"><svg width="10" height="10" style="stroke:currentColor"><use href="#i-sel"/></svg>全選択</button>
+        <button class="btn" id="btn-desel">解除</button>
+        <button class="btn dng" id="btn-del" disabled><svg width="10" height="10" style="stroke:currentColor"><use href="#i-trash"/></svg><span id="del-lbl">削除(0)</span></button>
+      </div>
+      <div class="mapwrap" id="mapWrap">
+        <canvas id="mapCanvas"></canvas>
+        <div class="cinfo" id="cinfo">
+          <div class="cit">チャンク情報</div>
+          <div id="cinfo-body" style="color:var(--mut);font-size:10px;line-height:1.6">ホバーまたはクリックで選択</div>
+          <div class="selcnt" id="sel-cnt" style="display:none"></div>
+        </div>
+        <div class="mleg">
+          <div class="lr"><div class="lb" style="background:#2a1800;border-color:#ffa657"></div>チャンク</div>
+          <div class="lr"><div class="lb" style="background:#3a2800;border-color:#d29922"></div>選択中</div>
+        </div>
+      </div>
+    </div>
+    <!-- Players -->
+    <div class="pane hide" data-pane="plr">
+      <div class="tb">
+        <div class="tpath" id="plr-path"><b>プレイヤー</b></div>
+        <button class="btn" id="btn-pexp" disabled><svg width="10" height="10" style="stroke:currentColor"><use href="#i-exp"/></svg>展開</button>
+        <button class="btn" id="btn-pcol" disabled><svg width="10" height="10" style="stroke:currentColor"><use href="#i-col"/></svg>折り畳み</button>
+        <button class="btn prim" id="btn-plr-save" disabled><svg width="10" height="10" style="stroke:currentColor"><use href="#i-save"/></svg>NBTとしてDL</button>
+      </div>
+      <div class="plr-wrap">
+        <div class="plr-list" id="plr-list"></div>
+        <div class="content" id="plr-content">
+          <div class="empty"><svg width="34" height="34" style="stroke:var(--bdr)"><use href="#i-user"/></svg><h2>NO PLAYERS</h2><p>プレイヤーデータがありません</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="status">
+      <span id="s-main">WASM読み込み中...</span>
+      <span id="sMod"><svg width="9" height="9" style="stroke:var(--yel)"><use href="#i-edit"/></svg> 未保存の変更あり</span>
+      <span id="wasm-status" style="color:var(--mut)">⬡ wasm: 初期化中</span>
+      <span id="s-cnt" style="margin-left:auto;color:var(--mut)"></span>
+    </div>
+  </main>
+</div>
+
+<!-- File Edit Modal -->
+<div class="ft-modal" id="ft-modal">
+  <div class="ft-mbox">
+    <div class="ft-mtitle">
+      <svg width="11" height="11" style="stroke:var(--grn)"><use href="#i-file"/></svg>
+      <b id="ft-mpath"></b>
+      <button class="btn" id="ft-m-close" style="padding:2px 7px">✕</button>
+    </div>
+    <textarea class="ft-mtextarea" id="ft-mtextarea" spellcheck="false" autocomplete="off"></textarea>
+    <div class="ft-hexview" id="ft-hexview" style="display:none"></div>
+    <div class="ft-mfooter">
+      <span id="ft-minfo" style="font-size:9px;color:var(--mut);flex:1"></span>
+      <button class="btn" id="ft-m-dl"><svg width="10" height="10" style="stroke:currentColor"><use href="#i-dl"/></svg>&nbsp;DL</button>
+      <button class="btn prim" id="ft-m-save"><svg width="10" height="10" style="stroke:currentColor"><use href="#i-save"/></svg>&nbsp;保存</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+'use strict';
+
+// ══════════════════════════════════════════
+//  §1  WASM BRIDGE
+// ══════════════════════════════════════════
+
+let WB = null; // WASM bridge object
+
+// Attempt to load mc-bedrock.wasm from same directory.
+// Falls back to pure-JS implementations if WASM unavailable.
+async function initWasm() {
+  try {
+    const resp = await fetch('mc-bedrock.wasm');
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const buf = await resp.arrayBuffer();
+    const { instance } = await WebAssembly.instantiate(buf);
+    const ex = instance.exports;
+    const mem = () => new Uint8Array(ex.memory.buffer);
+    const dv  = () => new DataView(ex.memory.buffer);
+
+    WB = {
+      // Copy JS Uint8Array into WASM memory; returns ptr
+      write(bytes) {
+        const ptr = ex.mem_alloc(bytes.length);
+        mem().set(bytes, ptr);
+        return ptr;
+      },
+      // Read bytes from WASM memory
+      read(ptr, len) { return mem().slice(ptr, ptr + len); },
+      // Reset bump allocator
+      reset() { ex.mem_reset(); },
+
+      // Snappy decompression via WASM
+      snappy(src) {
+        ex.mem_reset();
+        const sptr = this.write(src);
+        const dptr = ex.mem_alloc(src.length * 4 + 65536);
+        const dlen = ex.snappy_decompress(sptr, src.length, dptr, src.length * 4 + 65536);
+        if (dlen < 0) throw new Error('Snappy decompression failed');
+        return this.read(dptr, dlen);
+      },
+
+      // Parse LevelDB block entries via WASM
+      // Returns array of {key: Uint8Array, val: Uint8Array}
+      ldbBlockEntries(blockData) {
+        ex.mem_reset();
+        const sptr = this.write(blockData);
+        const dMax = blockData.length * 3 + 65536;
+        const dptr = ex.mem_alloc(dMax);
+        const count = ex.ldb_block_entries(sptr, blockData.length, dptr, dMax);
+        if (count < 0) return [];
+        const result = [];
+        let pos = dptr;
+        const dv2 = dv();
+        for (let i = 0; i < count; i++) {
+          const kLen = dv2.getUint32(pos, true); pos += 4;
+          const vLen = dv2.getUint32(pos, true); pos += 4;
+          result.push({ key: this.read(pos, kLen), val: this.read(pos + kLen, vLen) });
+          pos += kLen + vLen;
+        }
+        return result;
+      },
+
+      // Classify a key: 0=other, 1=chunk, 2=host, 3=guest
+      // Also returns chunk info if type=1
+      classifyKey(keyBytes) {
+        ex.mem_reset();
+        const kptr = this.write(keyBytes);
+        const optr = ex.mem_alloc(32);
+        const type = ex.classify_key(kptr, keyBytes.length, optr);
+        if (type === 1) {
+          const d = dv();
+          return {
+            type: 'chunk',
+            x:    d.getInt32(optr,    true),
+            z:    d.getInt32(optr+4,  true),
+            dim:  d.getInt32(optr+8,  true),
+            tag:  mem()[optr+12],
+            y:    new Int8Array(ex.memory.buffer)[optr+13],
+            isSub: mem()[optr+14] === 1
+          };
+        }
+        if (type === 2) return { type: 'player', ptype: 'host' };
+        if (type === 3) return { type: 'player', ptype: 'guest' };
+        return { type: 'other' };
+      }
+    };
+    document.getElementById('wasm-status').textContent = '⬡ wasm: 有効';
+    document.getElementById('wasm-status').style.color = 'var(--grn)';
+    console.log('[WASM] mc-bedrock.wasm loaded');
+  } catch (e) {
+    console.warn('[WASM] Failed to load, using JS fallback:', e.message);
+    document.getElementById('wasm-status').textContent = '⬡ wasm: JSフォールバック';
+    document.getElementById('wasm-status').style.color = 'var(--yel)';
+    WB = makeFallback();
+  }
+}
+
+// Pure-JS fallback (same logic as WASM, used if wasm file not available)
+function makeFallback() {
+  return {
+    snappy: snappyJS,
+    ldbBlockEntries: ldbBlockEntriesJS,
+    classifyKey: classifyKeyJS,
+    _noop: true
+  };
+}
+
+// ══════════════════════════════════════════
+//  §2  PURE-JS FALLBACKS
+// ══════════════════════════════════════════
+
+const U8D = new TextDecoder('utf-8',{fatal:false});
+const ENC = new TextEncoder();
+const ESC = s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const SVG = (id,w,h,c)=>`<svg width="${w}" height="${h}" style="stroke:${c};display:inline-block;vertical-align:middle;flex-shrink:0"><use href="#${id}"/></svg>`;
+const SV  = id=>SVG(id,9,9,'var(--mut)');
+function hexOf(b){let s='';for(const x of b)s+=x.toString(16).padStart(2,'0');return s;}
+function hexToBytes(h){h=h.replace(/\s+/g,'');const b=new Uint8Array(h.length>>1);for(let i=0;i<b.length;i++)b[i]=parseInt(h.slice(i*2,i*2+2),16);return b;}
+function textOrHex(s){s=s.trim();return/^([0-9a-fA-F]{2}\s*)+$/.test(s)?hexToBytes(s):ENC.encode(s);}
+function u32le(b,p){return((b[p]|(b[p+1]<<8)|(b[p+2]<<16)|(b[p+3]<<24))>>>0);}
+function varint(b,p){let lo=0,hi=0,s=0;for(let i=0;i<10&&p<b.length;i++,s+=7){const x=b[p++];if(s<28)lo|=(x&127)<<s;else if(s<35){lo|=(x&127)<<s;hi|=(x&127)>>(32-s);}else hi|=(x&127)<<(s-32);if(!(x&128))break;}return{v:(lo>>>0)+(hi>>>0)*4294967296,p};}
+
+function snappyJS(src) {
+  if(!(src instanceof Uint8Array))src=new Uint8Array(src);
+  let pos=0,uLen=0,sh=0;
+  while(pos<src.length){const b=src[pos++];uLen|=(b&127)<<sh;sh+=7;if(!(b&128))break;}
+  const dst=new Uint8Array(uLen);let out=0;
+  while(pos<src.length){
+    const tag=src[pos++],type=tag&3;
+    if(type===0){
+      const lc=(tag>>>2)&63;let len;
+      if(lc<60){len=lc+1;}else{const ex=lc-59;len=0;for(let i=0;i<ex;i++)len|=src[pos++]<<(i*8);len++;}
+      dst.set(src.subarray(pos,pos+len),out);out+=len;pos+=len;
+    }else if(type===1){
+      const len=((tag>>>2)&7)+4,off=((tag&0xE0)<<3)|src[pos++];
+      let cp=out-off;for(let i=0;i<len;i++)dst[out++]=dst[cp++];
+    }else if(type===2){
+      const len=((tag>>>2)&63)+1,off=src[pos]|(src[pos+1]<<8);pos+=2;
+      let cp=out-off;for(let i=0;i<len;i++)dst[out++]=dst[cp++];
+    }else{
+      const len=((tag>>>2)&63)+1,off=src[pos]|(src[pos+1]<<8)|(src[pos+2]<<16)|(src[pos+3]<<24);pos+=4;
+      let cp=out-off;for(let i=0;i<len;i++)dst[out++]=dst[cp++];
+    }
+  }
+  return dst.subarray(0,out);
+}
+
+function ldbBlockEntriesJS(data) {
+  if(!(data instanceof Uint8Array))data=new Uint8Array(data);
+  const len=data.length;if(len<4)return[];
+  const nr=u32le(data,len-4);if(!nr||nr>8192)return[];
+  const dataEnd=len-4-nr*4;if(dataEnd<0)return[];
+  const result=[];let pos=0;let lk=new Uint8Array(0);
+  while(pos<dataEnd){
+    let r;
+    r=varint(data,pos);const sh=r.v;pos=r.p;
+    r=varint(data,pos);const un=r.v;pos=r.p;
+    r=varint(data,pos);const vl=r.v;pos=r.p;
+    if(pos+un+vl>data.length)break;
+    const key=new Uint8Array(sh+un);
+    if(sh)key.set(lk.subarray(0,Math.min(sh,lk.length)));
+    key.set(data.subarray(pos,pos+un),sh);pos+=un;
+    const val=data.subarray(pos,pos+vl).slice();pos+=vl;
+    result.push({key:key.slice(),val});lk=key;
+  }
+  // Strip 8-byte LevelDB internal key suffix, skip deletions
+  return result.filter(e=>e.key.length>=8&&e.key[e.key.length-8]===1)
+               .map(e=>({key:e.key.slice(0,e.key.length-8),val:e.val}));
+}
+
+const CHUNK_TAGS = new Set([0x2b,0x2c,0x2d,0x2e,0x2f,0x30,0x31,0x32,0x33,0x35,0x36,0x37,0x38,0x39,0x3a,0x3b,0x3c,0x3d,0x3e,0x3f,0x40,0x41,0x61,0x76]);
+function classifyKeyJS(key) {
+  const len=key.length;
+  if((len===9||len===10||len===13||len===14)&&len>=9){
+    try{
+      const dv=new DataView(key.buffer,key.byteOffset,key.byteLength);
+      const x=dv.getInt32(0,true),z=dv.getInt32(4,true);
+      let dim=0,tag;
+      if(len<=10){tag=key[8];}else{dim=dv.getInt32(8,true);tag=key[12];}
+      if(CHUNK_TAGS.has(tag)){
+        const isSub=tag===0x2F;
+        const y=isSub&&(len===10||len===14)?new Int8Array([key[len-1]])[0]:0;
+        return{type:'chunk',x,z,dim,tag,y,isSub};
+      }
+    }catch(_){}
+  }
+  if(len>4&&len<200){
+    try{
+      const s=U8D.decode(key);
+      if(s==='~local_player')return{type:'player',ptype:'host'};
+      if(s.startsWith('player_server_'))return{type:'player',ptype:'guest'};
+      if(s.startsWith('player_'))return{type:'player',ptype:'guest'};
+    }catch(_){}
+  }
+  return{type:'other'};
+}
+
+// ══════════════════════════════════════════
+//  §3  LEVELDB FULL PIPELINE
+// ══════════════════════════════════════════
+
+function decompressBlock(bytes,off,sz) {
+  if(off+sz+5>bytes.length)throw new Error('OOB');
+  const raw=bytes.subarray(off,off+sz),ct=bytes[off+sz];
+  if(ct===0)return raw.slice();
+  // Use WASM Snappy if available, else JS
+  const decomp = WB?WB.snappy.bind(WB):snappyJS;
+  if(ct===1)try{return decomp(raw);}catch(_){return pako.inflateRaw(raw);}
+  if(ct===2)return pako.inflateRaw(raw);
+  if(ct===4)return pako.inflate(raw);
+  try{return decomp(raw);}catch(_){}
+  throw new Error('Unknown ctype '+ct);
+}
+
+function readSSTable(buf) {
+  const bytes=buf instanceof Uint8Array?buf:new Uint8Array(buf);
+  const len=bytes.length;if(len<48)throw new Error('Too small');
+  const foot=bytes.subarray(len-48);
+  let pos=0,r;
+  r=varint(foot,pos);pos=r.p;r=varint(foot,pos);pos=r.p; // metaindex skip
+  r=varint(foot,pos);const iOff=r.v;pos=r.p;
+  r=varint(foot,pos);const iSz=r.v;
+  if(iOff+iSz+5>len)throw new Error('Index OOB');
+  const idxBlock=decompressBlock(bytes,iOff,iSz);
+  // Use WASM or JS for block entry parsing
+  const parseBlock = WB ? d=>WB.ldbBlockEntries(d) : ldbBlockEntriesJS;
+  const result=[];
+  for(const ie of parseBlock(idxBlock)){
+    let rr=varint(ie.val,0);const bO=rr.v;rr=varint(ie.val,rr.p);const bS=rr.v;
+    if(bO+bS+5>len)continue;
+    let bd;try{bd=decompressBlock(bytes,bO,bS);}catch(_){continue;}
+    for(const be of parseBlock(bd))result.push(be);
+  }
+  return result;
+}
+
+function readLogRecords(bytes) {
+  if(!(bytes instanceof Uint8Array))bytes=new Uint8Array(bytes);
+  const recs=[];let pend=null,pos=0;
+  while(pos<bytes.length){
+    const rem=32768-(pos%32768);
+    if(rem<7){pos+=rem;continue;}
+    const dLen=u32le(bytes,pos+4)&0xFFFF; // lower 16 bits = length
+    const dL2 = bytes[pos+4]|(bytes[pos+5]<<8); // correct u16le
+    const type=bytes[pos+6];pos+=7;
+    if(pos+dL2>bytes.length)break;
+    const data=bytes.subarray(pos,pos+dL2).slice();pos+=dL2;
+    if(type===0){const bo=pos%32768;if(bo)pos+=32768-bo;pend=null;continue;}
+    if(type===1){recs.push(data);pend=null;}
+    else if(type===2){pend=[data];}
+    else if(type===3&&pend){pend.push(data);}
+    else if(type===4&&pend){
+      pend.push(data);
+      let tot=0;for(const f of pend)tot+=f.length;
+      const full=new Uint8Array(tot);let off=0;
+      for(const f of pend){full.set(f,off);off+=f.length;}
+      recs.push(full);pend=null;
+    }
+  }
+  return recs;
+}
+
+function parseWriteBatch(rec) {
+  if(rec.length<12)return[];
+  const count=u32le(rec,8);const ops=[];let pos=12;
+  for(let i=0;i<count&&pos<rec.length;i++){
+    const type=rec[pos++];
+    let r=varint(rec,pos);const kL=r.v;pos=r.p;
+    if(pos+kL>rec.length)break;
+    const key=rec.slice(pos,pos+kL);pos+=kL;
+    if(type===1){
+      r=varint(rec,pos);const vL=r.v;pos=r.p;
+      if(pos+vL>rec.length)break;
+      ops.push({type:'put',key,val:rec.slice(pos,pos+vL)});pos+=vL;
+    }else if(type===0){ops.push({type:'del',key});}
+  }
+  return ops;
+}
+
+function parseManifest(bytes) {
+  const recs=readLogRecords(bytes);const active=new Map();
+  for(const rec of recs){
+    let pos=0;
+    while(pos<rec.length){
+      let r=varint(rec,pos);const tag=r.v;pos=r.p;
+      if(tag===1){r=varint(rec,pos);pos=r.p+r.v;}
+      else if([2,3,4,8].includes(tag)){r=varint(rec,pos);pos=r.p;}
+      else if(tag===5){r=varint(rec,pos);pos=r.p;r=varint(rec,pos);pos=r.p+r.v;}
+      else if(tag===6){r=varint(rec,pos);pos=r.p;r=varint(rec,pos);active.delete(r.v);pos=r.p;}
+      else if(tag===7){
+        r=varint(rec,pos);pos=r.p;
+        r=varint(rec,pos);const fn=r.v;pos=r.p;
+        r=varint(rec,pos);pos=r.p;
+        r=varint(rec,pos);pos=r.p+r.v;
+        r=varint(rec,pos);pos=r.p+r.v;
+        active.set(fn,true);
+      }else{pos=rec.length;}
+    }
+  }
+  return new Set(active.keys());
+}
+
+async function loadLevelDB(files) {
+  const kv=new Map();
+  let activeNums=null,mname=null;
+  const cur=files.get('CURRENT');
+  if(cur)try{mname=U8D.decode(new Uint8Array(cur)).trim();}catch(_){}
+  if(!mname||!files.has(mname))for(const n of files.keys())if(n.startsWith('MANIFEST-')){mname=n;break;}
+  if(mname&&files.has(mname))try{activeNums=parseManifest(new Uint8Array(files.get(mname)));}catch(_){}
+
+  for(const[name,buf]of files){
+    const low=name.toLowerCase();
+    if(!low.endsWith('.ldb')&&!low.endsWith('.sst'))continue;
+    if(activeNums){const m=name.match(/^(\d+)\./);if(!m||!activeNums.has(parseInt(m[1])))continue;}
+    try{
+      for(const{key,val}of readSSTable(buf))kv.set(hexOf(key),{key,val});
+    }catch(e){console.warn('SST',name,e.message);}
+  }
+  const logs=[];
+  for(const[name,buf]of files){
+    if(!name.toLowerCase().endsWith('.log'))continue;
+    const m=name.match(/^(\d+)\./);logs.push({num:m?parseInt(m[1]):0,buf});
+  }
+  logs.sort((a,b)=>a.num-b.num);
+  for(const{buf}of logs){
+    try{
+      const bytes=buf instanceof Uint8Array?buf:new Uint8Array(buf);
+      for(const rec of readLogRecords(bytes))
+        for(const op of parseWriteBatch(rec)){
+          const hk=hexOf(op.key);
+          if(op.type==='put')kv.set(hk,{key:op.key,val:op.val});
+          else kv.delete(hk);
+        }
+    }catch(e){console.warn('Log',e.message);}
+  }
+  return kv;
+}
+
+// ══════════════════════════════════════════
+//  §4  NBT READER / WRITER  (Bedrock LE)
+// ══════════════════════════════════════════
+
+const TAG={END:0,BYTE:1,SHORT:2,INT:3,LONG:4,FLOAT:5,DOUBLE:6,BYTE_ARRAY:7,STRING:8,LIST:9,COMPOUND:10,INT_ARRAY:11,LONG_ARRAY:12};
+const TN=['TAG_End','TAG_Byte','TAG_Short','TAG_Int','TAG_Long','TAG_Float','TAG_Double','TAG_Byte_Array','TAG_String','TAG_List','TAG_Compound','TAG_Int_Array','TAG_Long_Array'];
+const TS=['END','BYTE','S16','INT','LONG','FLT','DBL','B[]','STR','LIST','COMP','I[]','L[]'];
+
+class NR{
+  constructor(buf){const ab=buf instanceof ArrayBuffer?buf:buf.buffer.slice(buf.byteOffset,buf.byteOffset+buf.byteLength);this.dv=new DataView(ab);this.p=0;}
+  u8(){return this.dv.getUint8(this.p++);}
+  s8(){return this.dv.getInt8(this.p++);}
+  s16(){const v=this.dv.getInt16(this.p,true);this.p+=2;return v;}
+  u16(){const v=this.dv.getUint16(this.p,true);this.p+=2;return v;}
+  s32(){const v=this.dv.getInt32(this.p,true);this.p+=4;return v;}
+  f32(){const v=this.dv.getFloat32(this.p,true);this.p+=4;return v;}
+  f64(){const v=this.dv.getFloat64(this.p,true);this.p+=8;return v;}
+  s64(){const lo=this.dv.getUint32(this.p,true),hi=this.dv.getInt32(this.p+4,true);this.p+=8;return BigInt.asIntN(64,(BigInt(hi)<<32n)|BigInt(lo));}
+  str(){const n=this.u16();const b=new Uint8Array(this.dv.buffer,this.p,n);this.p+=n;return U8D.decode(b);}
+  pay(t){switch(t){case 1:return this.s8();case 2:return this.s16();case 3:return this.s32();case 4:return this.s64();case 5:return this.f32();case 6:return this.f64();case 7:{const n=this.s32();const a=[];for(let i=0;i<n;i++)a.push(this.s8());return a;}case 8:return this.str();case 9:{const et=this.u8(),n=this.s32(),it=[];for(let i=0;i<n;i++)it.push(this.pay(et));return{elemType:et,items:it};}case 10:{const ch=[];for(;;){const t2=this.u8();if(t2===0)break;ch.push({type:t2,name:this.str(),value:this.pay(t2)});}return ch;}case 11:{const n=this.s32();const a=[];for(let i=0;i<n;i++)a.push(this.s32());return a;}case 12:{const n=this.s32();const a=[];for(let i=0;i<n;i++)a.push(this.s64());return a;}default:throw new Error('Bad tag '+t);}}
+  root(){const t=this.u8(),n=this.str();return{type:t,name:n,value:this.pay(t)};}
+}
+class NW{
+  constructor(){this.b=[];}
+  u8(v){this.b.push(v&255);}
+  s8(v){this.b.push(v<0?v+256:v&255);}
+  _w(n,fn,v){const a=new ArrayBuffer(n);fn(new DataView(a),v);for(const x of new Uint8Array(a))this.b.push(x);}
+  s16(v){this._w(2,(d,v)=>d.setInt16(0,v,true),v);}
+  u16(v){this._w(2,(d,v)=>d.setUint16(0,v,true),v);}
+  s32(v){this._w(4,(d,v)=>d.setInt32(0,v,true),v);}
+  f32(v){this._w(4,(d,v)=>d.setFloat32(0,v,true),v);}
+  f64(v){this._w(8,(d,v)=>d.setFloat64(0,v,true),v);}
+  s64(big){const u=BigInt.asUintN(64,BigInt.asIntN(64,big));const lo=Number(u&0xFFFFFFFFn),hi=Number((u>>32n)&0xFFFFFFFFn);const a=new ArrayBuffer(8);const d=new DataView(a);d.setUint32(0,lo,true);d.setInt32(4,hi,true);for(const x of new Uint8Array(a))this.b.push(x);}
+  str(s){const e=ENC.encode(s);this.u16(e.length);for(const c of e)this.b.push(c);}
+  pay(t,v){switch(t){case 1:this.s8(v);break;case 2:this.s16(v);break;case 3:this.s32(v);break;case 4:this.s64(v);break;case 5:this.f32(v);break;case 6:this.f64(v);break;case 7:this.s32(v.length);for(const x of v)this.s8(x);break;case 8:this.str(v);break;case 9:this.u8(v.elemType);this.s32(v.items.length);for(const x of v.items)this.pay(v.elemType,x);break;case 10:for(const c of v){this.u8(c.type);this.str(c.name);this.pay(c.type,c.value);}this.u8(0);break;case 11:this.s32(v.length);for(const x of v)this.s32(x);break;case 12:this.s32(v.length);for(const x of v)this.s64(x);break;}}
+  root(n){this.u8(n.type);this.str(n.name);this.pay(n.type,n.value);}
+  out(){return new Uint8Array(this.b);}
+}
+
+function parseBeDat(buf){
+  if(buf.byteLength<8)throw new Error('level.dat が小さすぎます');
+  const dv=new DataView(buf),ver=dv.getUint32(0,true),sz=dv.getUint32(4,true);
+  return{nbt:new NR(buf.slice(8,8+Math.min(sz,buf.byteLength-8))).root(),version:ver};
+}
+function serBeDat(nbt,ver){
+  const w=new NW();w.root(nbt);const p=w.out();
+  const out=new Uint8Array(8+p.length);
+  new DataView(out.buffer).setUint32(0,ver,true);
+  new DataView(out.buffer).setUint32(4,p.length,true);
+  out.set(p,8);return out;
+}
+function serNBT(nbt){const w=new NW();w.root(nbt);return w.out();}
+
+// ══════════════════════════════════════════
+//  §5  APP STATE
+// ══════════════════════════════════════════
+const WORLDS=[];let WI=-1,PLR=-1;
+const ZIPS=new Map();let ZC=0;
+let _SA=null;
+
+// ══════════════════════════════════════════
+//  §6  FILE LOADING
+// ══════════════════════════════════════════
+function readBuf(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsArrayBuffer(f);});}
+function isZip(b){const u=new Uint8Array(b,0,4);return u[0]===0x50&&u[1]===0x4B&&u[2]===0x03&&u[3]===0x04;}
+
+async function onFiles(files){
+  setLoad(true);st('読み込み中...');
+  for(const f of files){
+    prog(f.name);let buf;try{buf=await readBuf(f);}catch(_){continue;}
+    if(isZip(buf)){
+      let zip;try{zip=await JSZip.loadAsync(buf);}catch(e){st('ZIP失敗: '+e.message,true);continue;}
+      const zipId='z'+(ZC++);ZIPS.set(zipId,{zip,name:f.name});
+      WORLDS.push(await buildWorld(zip,zipId,f.name));
+    }else{addStandalone(f.name.split(/[/\\]/).pop(),buf);}
+  }
+  renderSidebar();if(WI===-1&&WORLDS.length>0)selectWorld(0);
+  updCnt();setLoad(false);
+}
+
+async function buildWorld(zip,zipId,origName){
+  const w={id:'w'+WORLDS.length,name:origName,zipId,dat:null,db:null};
+  const dbFiles=new Map();
+  for(const ep of Object.keys(zip.files)){
+    if(zip.files[ep].dir)continue;
+    const fname=ep.split('/').pop(),low=fname.toLowerCase();
+    prog(fname);
+    try{
+      if(low==='level.dat'){
+        if(!w.dat||ep.split('/').length<w.dat._ep.split('/').length){
+          const buf=await zip.files[ep].async('arraybuffer');
+          try{const r=parseBeDat(buf);w.dat={nbt:r.nbt,version:r.version,dirty:false,_ep:ep};}
+          catch(e){w.dat={nbt:null,err:e.message,version:8,dirty:false,_ep:ep};}
+        }
+        continue;
+      }
+      const isDB=low.endsWith('.ldb')||low.endsWith('.sst')||low.endsWith('.log')||fname==='CURRENT'||fname==='LOCK'||fname.startsWith('MANIFEST-');
+      if(isDB){const buf=await zip.files[ep].async('arraybuffer');dbFiles.set(fname,buf);}
+    }catch(_){}
+  }
+  if(dbFiles.size>0){
+    prog('LevelDB解析中...');
+    w.db={kv:null,chunks:new Map(),players:[],dirty:false,_files:dbFiles};
+    try{const kv=await loadLevelDB(dbFiles);w.db.kv=kv;processDB(w);}
+    catch(e){w.db.error=e.message;console.error('DB',e);}
+  }
+  return w;
+}
+
+function addStandalone(fname,buf){
+  if(!_SA){_SA={id:'__sa__',name:'スタンドアロン',zipId:null,dat:null,db:{kv:new Map(),chunks:new Map(),players:[],dirty:false,_files:new Map()}};WORLDS.push(_SA);}
+  const low=fname.toLowerCase();
+  if(low==='level.dat'){
+    try{const r=parseBeDat(buf);_SA.dat={nbt:r.nbt,version:r.version,dirty:false,_ep:null};}
+    catch(e){_SA.dat={nbt:null,err:e.message,version:8,dirty:false,_ep:null};}
+    return;
+  }
+  const isDB=low.endsWith('.ldb')||low.endsWith('.sst')||low.endsWith('.log')||fname==='CURRENT'||fname.startsWith('MANIFEST-');
+  if(isDB){
+    _SA.db._files.set(fname,buf);
+    loadLevelDB(_SA.db._files).then(kv=>{_SA.db.kv=kv;processDB(_SA);renderSidebar();updCnt();}).catch(_=>{});
+  }
+}
+
+function processDB(w){
+  if(!w.db?.kv)return;
+  w.db.chunks=new Map();w.db.players=[];
+  const classify = WB ? k=>WB.classifyKey(k) : classifyKeyJS;
+  for(const{key,val}of w.db.kv.values()){
+    const c=classify(key);
+    if(c.type==='chunk'&&c.dim===0){
+      const mk=c.x+':'+c.z;
+      if(!w.db.chunks.has(mk))w.db.chunks.set(mk,{cx:c.x,cz:c.z});
+    }else if(c.type==='player'&&!w.db.players.some(p=>p.id===hexOf(key))){
+      let nbt=null,err=null;
+      const id=U8D.decode(key);
+      const label=c.ptype==='host'?'ホストプレイヤー':'ゲスト: '+(id.startsWith('player_server_')?id.slice(14,22)+'…':id.slice(7));
+      try{nbt=new NR(val.buffer.slice(val.byteOffset,val.byteOffset+val.byteLength)).root();}
+      catch(e){err=e.message;}
+      w.db.players.push({id:hexOf(key),label,ptype:c.ptype,nbt,err,dirty:false,rawKey:key.slice()});
+    }
+  }
+  w.db.players.sort((a,b)=>a.ptype==='host'?-1:b.ptype==='host'?1:0);
+}
+
+// ══════════════════════════════════════════
+//  §7  SIDEBAR / WORLD SWITCHING
+// ══════════════════════════════════════════
+function renderSidebar(){
+  const c=document.getElementById('wlist');
+  document.getElementById('wlistEmpty').style.display=WORLDS.length?'none':'';
+  c.querySelectorAll('.witem').forEach(e=>e.remove());
+  WORLDS.forEach((w,i)=>{
+    const div=document.createElement('div');div.className='witem'+(i===WI?' act':'');
+    const col=i===WI?'var(--grn)':'var(--mut)';
+    let html=`<div class="wi-row">${SVG('i-world',12,12,col)}<span class="wi-name" title="${ESC(w.name)}">${ESC(w.name)}</span></div><div class="wi-stats">`;
+    if(w.dat&&!w.dat.err)html+=`<span class="wst">${SVG('i-file',9,9,'var(--mut)')}<b>dat</b></span>`;
+    if(w.db){
+      const nc=w.db.chunks?.size||0,np=w.db.players?.length||0;
+      if(nc)html+=`<span class="wst">${SVG('i-map',9,9,'var(--mut)')}<b>${nc}</b>ch</span>`;
+      if(np)html+=`<span class="wst p">${SVG('i-user',9,9,'var(--mut)')}<b>${np}</b>人</span>`;
+      if(w.db.error)html+=`<span class="wst e">${SVG('i-alert',9,9,'var(--red)')}<b>DBエラー</b></span>`;
+    }
+    html+='</div>';div.innerHTML=html;
+    div.onclick=()=>selectWorld(i);c.appendChild(div);
+  });
+}
+
+function updCnt(){
+  let ch=0,pl=0;
+  for(const w of WORLDS){ch+=w.db?.chunks?.size||0;pl+=w.db?.players?.length||0;}
+  document.getElementById('s-cnt').textContent=`Worlds:${WORLDS.length}  Chunks:${ch}  Players:${pl}`;
+}
+
+function selectWorld(i){
+  WI=i;PLR=-1;renderSidebar();
+  const w=WORLDS[i];
+  const nc=w.db?.chunks?.size||0,np=w.db?.players?.length||0,nk=w.db?.kv?.size||0;
+  badge('tc-db',nk);badge('tc-map',nc);badge('tc-plr',np);
+  renderFileTree();
+  const active=document.querySelector('.tab.act');
+  if(active)switchTab(active.dataset.tab);
+}
+function badge(id,n){const el=document.getElementById(id);if(el){el.textContent=n;el.style.display=n>0?'':'none';}}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('act',t.dataset.tab===name));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('hide',p.dataset.pane!==name));
+  if(name==='map')requestAnimationFrame(()=>{resizeCv();autoFit();drawMap();});
+  else if(name==='dat')renderDat();
+  else if(name==='db')renderDB();
+  else if(name==='plr')renderPlr();
+}
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>switchTab(t.dataset.tab)));
+
+// ══════════════════════════════════════════
+//  §8  NBT TREE (with add/delete)
+// ══════════════════════════════════════════
+const PRIM=t=>t>=TAG.BYTE&&t<=TAG.STRING;
+const v2s=(t,v)=>t===TAG.LONG?v.toString():String(v);
+function pv(t,s){s=s.trim();switch(t){case 1:case 2:case 3:return parseInt(s)||0;case 4:try{return BigInt(s);}catch(_){return 0n;}case 5:case 6:return parseFloat(s)||0;default:return s;}}
+function ms(t,v){switch(t){case 1:return'byte';case 2:return'short';case 3:return'int';case 4:return'long';case 5:return'float';case 6:return'double';case 7:return`[${v.length}B]`;case 11:return`[${v.length}I]`;case 12:return`[${v.length}L]`;case 9:return`${v.items.length}×${TS[v.elemType]||'?'}`;case 10:return`${v.length} tags`;default:return'';}}
+function dv2(t){switch(t){case 1:case 2:case 3:return 0;case 4:return 0n;case 5:case 6:return 0;case 8:return'';case 10:return[];case 9:return{elemType:3,items:[]};default:return[];}}
+
+function renderNBT(root,cont,onMod){
+  cont.innerHTML=`<div style="font-size:9px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--bdr);padding:3px 2px;margin-bottom:4px">${ESC(TN[root.type]||'')}: "${ESC(root.name||'')}"</div>`;
+  const tree=document.createElement('div');tree.className='ntree';cont.appendChild(tree);
+  buildNode(root,tree,onMod,null,-1);
+}
+
+function buildNode(node,par,onMod,pArr,pIdx){
+  const hasCh=[TAG.COMPOUND,TAG.LIST,TAG.BYTE_ARRAY,TAG.INT_ARRAY,TAG.LONG_ARRAY].includes(node.type);
+  const wrap=document.createElement('div');wrap.className='nnode';
+  const row=mkRow(node.type,TS[node.type]||'?',node.name??null,false,()=>node.value,v=>{node.value=v;onMod();},pArr,pIdx,wrap,par,onMod);
+  wrap.appendChild(row.el);
+  if(hasCh){
+    const ch=document.createElement('div');ch.className='nch';
+    renderCh(node.type,node.value,ch,onMod);
+    if(node.type===TAG.COMPOUND||node.type===TAG.LIST)appendAdd(ch,node,onMod);
+    row.tog.onclick=()=>{ch.classList.toggle('col');row.tog._o=!row.tog._o;row.tog.innerHTML=row.tog._o?SV('i-cd'):SV('i-cr');};
+    wrap.appendChild(ch);
+  }
+  par.appendChild(wrap);
+}
+function renderCh(t,v,ch,om){
+  if(t===TAG.COMPOUND)for(let i=0;i<v.length;i++)buildNode(v[i],ch,om,v,i);
+  else if(t===TAG.LIST){const{elemType:et,items}=v;for(let i=0;i<items.length;i++)buildLI(et,items,i,ch,om);}
+  else buildArr(t,v,ch,om);
+}
+function buildLI(et,items,i,par,om){
+  const hasCh=et===TAG.COMPOUND||et===TAG.LIST;
+  const wrap=document.createElement('div');wrap.className='nnode';
+  const row=mkRow(et,TS[et]||'?','['+i+']',true,()=>items[i],v=>{items[i]=v;om();},items,i,wrap,par,om);
+  wrap.appendChild(row.el);
+  if(hasCh){
+    const ch=document.createElement('div');ch.className='nch';
+    if(et===TAG.COMPOUND)for(let j=0;j<items[i].length;j++)buildNode(items[i][j],ch,om,items[i],j);
+    else if(et===TAG.LIST){const{elemType:e2,items:i2}=items[i];for(let j=0;j<i2.length;j++)buildLI(e2,i2,j,ch,om);}
+    if(et===TAG.COMPOUND||et===TAG.LIST)appendAdd(ch,{type:et,value:items[i]},om);
+    row.tog.onclick=()=>{ch.classList.toggle('col');row.tog._o=!row.tog._o;row.tog.innerHTML=row.tog._o?SV('i-cd'):SV('i-cr');};
+    wrap.appendChild(ch);
+  }
+  par.appendChild(wrap);
+}
+function buildArr(type,arr,par,om){
+  const it=type===TAG.LONG_ARRAY?TAG.LONG:(type===TAG.INT_ARRAY?TAG.INT:TAG.BYTE);
+  const PAGE=100;
+  let shown=par._arrShown||PAGE;
+  const render=(cnt)=>{
+    par.innerHTML='';
+    par._arrShown=cnt;
+    for(let i=0;i<Math.min(cnt,arr.length);i++){const idx=i;const row=mkRow(it,TS[it]||'?','['+idx+']',true,()=>arr[idx],v=>{arr[idx]=v;om();},arr,idx,null,par,om);par.appendChild(row.el);}
+    if(arr.length>cnt){
+      const m=document.createElement('div');m.style.cssText='padding:2px 6px;font-size:8px';
+      const rem=arr.length-cnt;const next=Math.min(cnt+PAGE,arr.length);
+      m.innerHTML=`<span style="color:var(--mut)">... ${rem} 件省略 </span><button class="btn" style="font-size:8px" onclick="this.parentElement._renderMore()">▼ 次の${Math.min(PAGE,rem)}件</button>`;
+      m._renderMore=()=>render(next);
+      par.appendChild(m);
+    }
+  };
+  render(shown);
+}
+function mkRow(type,tagTxt,nameTxt,isIdx,getter,setter,pArr,pIdx,wrap,parEl,om){
+  const hasCh=[TAG.COMPOUND,TAG.LIST,TAG.BYTE_ARRAY,TAG.INT_ARRAY,TAG.LONG_ARRAY].includes(type);
+  const el=document.createElement('div');el.className='nrow';
+  const tog=document.createElement('span');tog.className='ntog';if(hasCh){tog.innerHTML=SV('i-cd');tog._o=true;}el.appendChild(tog);
+  const icon=document.createElement('span');icon.className=`nicon t${type}`;icon.title=TN[type]||'';icon.textContent=tagTxt;el.appendChild(icon);
+  if(nameTxt!==null&&nameTxt!==undefined){const nm=document.createElement('span');nm.className=isIdx?'nidx':'nname';nm.textContent=nameTxt;el.appendChild(nm);const co=document.createElement('span');co.className='ncol';co.textContent=':';el.appendChild(co);}
+  const vw=document.createElement('span');vw.className='nval';
+  if(PRIM(type)){const inp=document.createElement('input');inp.className='ni';inp.spellcheck=false;inp.autocomplete='off';inp.value=v2s(type,getter());inp.oninput=()=>{inp.classList.add('mod');setter(pv(type,inp.value));};vw.appendChild(inp);const m=document.createElement('span');m.className='nmeta';m.textContent=ms(type,null);vw.appendChild(m);}
+  else{const m=document.createElement('span');m.className='nmeta';m.textContent=ms(type,getter());vw.appendChild(m);}
+  el.appendChild(vw);
+  if(pArr!==null&&pArr!==undefined&&pIdx!==-1){
+    const acts=document.createElement('div');acts.className='nacts';
+    const del=document.createElement('button');del.className='btn dng';del.style.cssText='padding:1px 4px;font-size:9px';del.title='削除';del.innerHTML=SVG('i-x',9,9,'currentColor');
+    del.onclick=e=>{e.stopPropagation();if(Array.isArray(pArr))pArr.splice(pIdx,1);if(wrap&&parEl)parEl.removeChild(wrap);om();};
+    acts.appendChild(del);el.appendChild(acts);
+  }
+  return{el,tog};
+}
+function appendAdd(container,parentNode,om){
+  const row=document.createElement('div');row.className='nadd';
+  const isComp=parentNode.type===TAG.COMPOUND;
+  const sel=document.createElement('select');
+  [[1,'BYTE'],[2,'SHORT'],[3,'INT'],[4,'LONG'],[5,'FLOAT'],[6,'DOUBLE'],[7,'BYTE[]'],[8,'STRING'],[9,'LIST'],[10,'COMPOUND'],[11,'INT[]'],[12,'LONG[]']].forEach(([v,l])=>{const o=document.createElement('option');o.value=v;o.textContent=l;sel.appendChild(o);});
+  if(!isComp){sel.value=String(parentNode.value.elemType);sel.disabled=true;}
+  const nameIn=document.createElement('input');nameIn.placeholder='タグ名';nameIn.style.width='80px';
+  const valIn=document.createElement('input');valIn.placeholder='値';valIn.style.width='90px';
+  const addBtn=document.createElement('button');addBtn.className='btn prim';addBtn.style.cssText='padding:2px 6px;font-size:9px';
+  addBtn.innerHTML=SVG('i-plus',9,9,'currentColor')+' 追加';
+  addBtn.onclick=()=>{
+    const t=parseInt(sel.value);let newVal=dv2(t);
+    if(PRIM(t)&&valIn.value.trim())newVal=pv(t,valIn.value);
+    if(isComp){
+      const name=nameIn.value.trim()||'新タグ';
+      parentNode.value.push({type:t,name,value:newVal});
+      buildNode({type:t,name,value:newVal},container,om,parentNode.value,parentNode.value.length-1);
+      container.appendChild(row);
+    }else{
+      parentNode.value.items.push(newVal);
+      buildLI(parentNode.value.elemType,parentNode.value.items,parentNode.value.items.length-1,container,om);
+      container.appendChild(row);
+    }
+    nameIn.value='';valIn.value='';om();
+  };
+  if(isComp){row.appendChild(sel);row.appendChild(nameIn);row.appendChild(valIn);}
+  else{row.appendChild(sel);row.appendChild(valIn);}
+  row.appendChild(addBtn);container.appendChild(row);
+}
+function doSearch(q,root){
+  q=q.toLowerCase().trim();
+  const all=Array.from(root.querySelectorAll('.nnode'));
+  if(!q){all.forEach(n=>n.style.display='');return;}
+  const matched=new Set();
+  for(const n of all){const row=n.querySelector(':scope > .nrow');if(row&&row.textContent.toLowerCase().includes(q))matched.add(n);}
+  const vis=new Set(matched);
+  for(const n of matched){let c=n.parentElement;while(c&&c!==root){if(c.classList.contains('nnode'))vis.add(c);c=c.parentElement;}}
+  for(const n of all)n.style.display=vis.has(n)?'':'none';
+  for(const n of vis){const ch=n.querySelector(':scope > .nch');if(ch){ch.classList.remove('col');const t=n.querySelector(':scope > .nrow > .ntog');if(t){t.innerHTML=SV('i-cd');t._o=true;}}}
+}
+
+// ══════════════════════════════════════════
+//  §9  PANE RENDERERS
+// ══════════════════════════════════════════
+function renderDat(){
+  const cont=document.getElementById('dat-content'),path=document.getElementById('dat-path');
+  const dis=id=>document.getElementById(id).disabled=true;
+  const en=id=>document.getElementById(id).disabled=false;
+  if(WI<0){path.innerHTML='<b>level.dat</b>';['btn-dat-save','btn-exp','btn-col'].forEach(dis);return;}
+  const w=WORLDS[WI];
+  if(!w.dat){path.innerHTML='<b>level.dat</b> — なし';cont.innerHTML='<div class="empty"><svg width="36" height="36" style="stroke:var(--bdr)"><use href="#i-world"/></svg><h2>NO LEVEL.DAT</h2><p>このワールドにlevel.datがありません</p></div>';['btn-dat-save','btn-exp','btn-col'].forEach(dis);document.getElementById('srch').classList.remove('on');return;}
+  path.innerHTML=`<b>level.dat</b> — Bedrock v${w.dat.version} [${ESC(w.name)}]`;
+  if(!w.dat.nbt){cont.innerHTML=`<div class="empty"><svg width="34" height="34" style="stroke:var(--red)"><use href="#i-alert"/></svg><h2>ERROR</h2><p>${ESC(w.dat.err||'解析失敗')}</p></div>`;['btn-dat-save','btn-exp','btn-col'].forEach(dis);document.getElementById('srch').classList.remove('on');return;}
+  ['btn-dat-save','btn-exp','btn-col'].forEach(en);document.getElementById('srch').classList.add('on');
+  renderNBT(w.dat.nbt,cont,()=>{w.dat.dirty=true;markMod();});
+}
+
+function renderDB(){
+  const cont=document.getElementById('db-content');
+  if(WI<0||!WORLDS[WI].db?.kv){cont.innerHTML='<div class="empty"><svg width="34" height="34" style="stroke:var(--bdr)"><use href="#i-db"/></svg><h2>NO DB</h2><p>LevelDBを含むワールドを選択してください</p></div>';return;}
+  renderDBTable();
+}
+function renderDBTable(){
+  const w=WORLDS[WI];const kv=w.db.kv;
+  const q=(document.getElementById('db-search').value||'').toLowerCase().trim();
+  const cont=document.getElementById('db-content');
+  const classify = WB ? k=>WB.classifyKey(k) : classifyKeyJS;
+  let rows=[];
+  for(const[hk,{key,val}]of kv){
+    let ks;try{ks=U8D.decode(key);}catch(_){ks=hexOf(key);}
+    if(q&&!ks.toLowerCase().includes(q)&&!hk.includes(q))continue;
+    const c=classify(key);
+    rows.push({hk,key,val,c,ks});
+  }
+  if(!rows.length){cont.innerHTML='<div class="empty" style="height:200px"><p style="color:var(--mut)">エントリがありません</p></div>';return;}
+  const PAGE=100,total=rows.length;
+  // Preserve scroll and loaded page count
+  const prevLoaded=parseInt(cont.dataset.loaded||'0')||PAGE;
+  const show=Math.min(prevLoaded,total);
+  let html=`<div style="padding:3px 7px;font-size:8px;color:var(--mut);border-bottom:1px solid var(--bdr)">${total} エントリ中 ${show} 件表示</div><table class="dbt"><thead><tr><th>タイプ</th><th>キー</th><th>サイズ</th><th></th></tr></thead><tbody>`;
+  for(const{hk,key,val,c,ks}of rows.slice(0,show)){
+    const tc=c.type==='chunk'?'chunk':c.type==='player'?'player':'other';
+    const tl=c.type==='chunk'?`チャンク (${c.x},${c.z})`:c.type==='player'?(c.ptype==='host'?'ホスト':'ゲスト'):'その他';
+    const disp=ks.length>40?ks.slice(0,40)+'…':ks;
+    html+=`<tr data-hk="${hk}"><td><span class="ktag ${tc}">${tl}</span></td><td><span class="kstr" title="${ESC(ks)}">${ESC(disp)}</span></td><td style="color:var(--mut)">${val.length}B</td><td><button class="btn dng" style="padding:1px 4px;font-size:8px" onclick="dbDel('${hk}')">${SVG('i-trash',8,8,'currentColor')}</button></td></tr>`;
+  }
+  html+='</tbody></table>';
+  if(show<total){
+    const rem=total-show;
+    html+=`<div style="padding:5px 8px;text-align:center"><button class="btn prim" style="font-size:8px;margin:0 auto" onclick="dbLoadMore(${Math.min(show+PAGE,total)})">▼ もっと読み込む (次の${Math.min(PAGE,rem)}件 / 残り${rem}件)</button></div>`;
+  }
+  cont.innerHTML=html;
+  cont.dataset.loaded=String(show);
+}
+window.dbLoadMore=function(nextCount){
+  const cont=document.getElementById('db-content');
+  cont.dataset.loaded=String(nextCount);
+  renderDBTable();
+};
+window.dbDel=hk=>{
+  const w=WORLDS[WI];if(!w?.db?.kv)return;
+  if(!confirm('このキーを削除しますか？'))return;
+  w.db.kv.delete(hk);processDB(w);renderDB();renderSidebar();updCnt();markMod();
+  badge('tc-db',w.db.kv.size);badge('tc-map',w.db.chunks.size);badge('tc-plr',w.db.players.length);
+  st('DBキーを削除しました');
+};
+document.getElementById('btn-db-add').addEventListener('click',()=>{
+  const w=WORLDS[WI];if(!w?.db?.kv)return;
+  const ks=document.getElementById('db-add-key').value.trim();
+  const vs=document.getElementById('db-add-val').value.trim();
+  if(!ks){alert('キーを入力してください');return;}
+  let key,val;
+  try{key=textOrHex(ks);}catch(e){alert('キー形式エラー: '+e.message);return;}
+  try{val=vs?hexToBytes(vs):new Uint8Array(0);}catch(e){alert('値(hex)エラー: '+e.message);return;}
+  const hk=hexOf(key);w.db.kv.set(hk,{key,val});
+  processDB(w);renderDB();renderSidebar();updCnt();markMod();
+  badge('tc-db',w.db.kv.size);badge('tc-map',w.db.chunks.size);badge('tc-plr',w.db.players.length);
+  document.getElementById('db-add-key').value='';document.getElementById('db-add-val').value='';
+  st('DBキーを追加しました');
+});
+document.getElementById('db-search').addEventListener('input',()=>{const c=document.getElementById('db-content');c.dataset.loaded='100';renderDBTable();});
+
+function renderPlr(){
+  const w=WI>=0?WORLDS[WI]:null;
+  const players=w?.db?.players||[];
+  const listEl=document.getElementById('plr-list'),cont=document.getElementById('plr-content'),path=document.getElementById('plr-path');
+  const dis=id=>document.getElementById(id).disabled=true;const en=id=>document.getElementById(id).disabled=false;
+  listEl.innerHTML='';
+  if(!players.length){path.innerHTML='<b>プレイヤー</b>';cont.innerHTML='<div class="empty"><svg width="34" height="34" style="stroke:var(--bdr)"><use href="#i-user"/></svg><h2>NO PLAYERS</h2><p>プレイヤーデータがありません</p></div>';['btn-plr-save','btn-pexp','btn-pcol'].forEach(dis);return;}
+  players.forEach((p,i)=>{
+    const d=document.createElement('div');d.className='plr-item'+(i===PLR?' act':'');
+    const col=i===PLR?'var(--grn)':p.ptype==='host'?'var(--ora)':'var(--mut)';
+    d.innerHTML=`${SVG('i-user',11,11,col)}<span class="plr-name" title="${ESC(p.id)}">${ESC(p.label)}</span><span class="plr-badge ${p.ptype}">${p.ptype==='host'?'HOST':'GUEST'}</span>`;
+    d.onclick=()=>{PLR=i;renderPlr();};listEl.appendChild(d);
+  });
+  if(PLR<0||PLR>=players.length)PLR=0;
+  const p=players[PLR];
+  path.innerHTML=`<b>${ESC(p.label)}</b>`;
+  if(!p.nbt){cont.innerHTML=`<div class="empty"><svg width="34" height="34" style="stroke:var(--red)"><use href="#i-alert"/></svg><h2>ERROR</h2><p>${ESC(p.err||'解析失敗')}</p></div>`;['btn-plr-save','btn-pexp','btn-pcol'].forEach(dis);return;}
+  ['btn-plr-save','btn-pexp','btn-pcol'].forEach(en);
+  renderNBT(p.nbt,cont,()=>{p.dirty=true;markMod();});
+}
+
+// ══════════════════════════════════════════
+//  §10  MAP
+// ══════════════════════════════════════════
+const MAP={zooms:[1,2,4,8,12,16],zi:2,px:0,pz:0,sel:new Set(),hov:null,drag:null};
+const mz=()=>MAP.zooms[MAP.zi];
+function resizeCv(){const wrap=document.getElementById('mapWrap'),ci=document.getElementById('cinfo'),cv=document.getElementById('mapCanvas');cv.width=Math.max(10,wrap.clientWidth-ci.offsetWidth);cv.height=Math.max(10,wrap.clientHeight);}
+function autoFit(){
+  if(WI<0)return;const w=WORLDS[WI];const ch=w.db?.chunks;if(!ch?.size)return;
+  let mnX=Infinity,mxX=-Infinity,mnZ=Infinity,mxZ=-Infinity;
+  for(const{cx,cz}of ch.values()){if(Math.abs(cx)>300000||Math.abs(cz)>300000)continue;mnX=Math.min(mnX,cx);mxX=Math.max(mxX,cx+1);mnZ=Math.min(mnZ,cz);mxZ=Math.max(mxZ,cz+1);}
+  if(mnX===Infinity)return;
+  const cv=document.getElementById('mapCanvas');
+  const W=cv.width||400,H=cv.height||400;
+  const spX=Math.max(1,mxX-mnX),spZ=Math.max(1,mxZ-mnZ);
+  const ideal=Math.floor(Math.min(W/spX,H/spZ));
+  MAP.zi=Math.max(0,Math.min(MAP.zooms.length-1,MAP.zooms.findLastIndex(z=>z<=ideal)));
+  const z=mz();MAP.px=(mnX+mxX)/2-W/(z*2);MAP.pz=(mnZ+mxZ)/2-H/(z*2);
+  document.getElementById('z-lbl').textContent=z+'px/ch';
+}
+function drawMap(){
+  const cv=document.getElementById('mapCanvas'),ctx=cv.getContext('2d');
+  if(!ctx||!cv.width)return;
+  const W=cv.width,H=cv.height,z=mz(),px=MAP.px,pz=MAP.pz;
+  ctx.fillStyle='#0d1117';ctx.fillRect(0,0,W,H);
+  if(WI<0)return;
+  const chunks=WORLDS[WI].db?.chunks;
+  if(!chunks?.size){ctx.fillStyle='#7d8590';ctx.font='11px Share Tech Mono,monospace';ctx.textAlign='center';ctx.fillText('チャンクデータがありません',W/2,H/2);return;}
+  const csz=Math.max(1,Math.floor(z));
+  for(const{cx,cz}of chunks.values()){
+    const sx=Math.floor((cx-px)*z),sz=Math.floor((cz-pz)*z);
+    if(sx+csz<0||sx>W||sz+csz<0||sz>H)continue;
+    const k=cx+':'+cz,sel=MAP.sel.has(k),hov=MAP.hov===k;
+    ctx.fillStyle=sel?(hov?'#7a5800':'#3a2800'):(hov?'#4a3010':'#2a1800');
+    ctx.fillRect(sx,sz,csz,csz);
+    if(z>=4&&(sel||hov)){ctx.strokeStyle=sel?'#d29922':'#ffa657';ctx.lineWidth=1;ctx.strokeRect(sx+.5,sz+.5,csz-1,csz-1);}
+  }
+  if(z>=8){ctx.fillStyle='#7d8590';ctx.font=Math.min(9,z-3)+'px Share Tech Mono,monospace';ctx.textAlign='left';for(const{cx,cz}of chunks.values()){const sx=Math.floor((cx-px)*z)+2,sz=Math.floor((cz-pz)*z)+8;if(sx>0&&sx<W&&sz>0&&sz<H)ctx.fillText(cx+','+cz,sx,sz);}}
+}
+function stc(sx,sz){if(WI<0)return null;const z=mz(),cx=Math.floor(sx/z+MAP.px),cz=Math.floor(sz/z+MAP.pz),k=cx+':'+cz;return WORLDS[WI].db?.chunks?.has(k)?{cx,cz,k}:null;}
+function showCI(h){
+  const b=document.getElementById('cinfo-body');
+  if(!h){b.innerHTML='<span style="color:var(--mut)">ホバーまたはクリックで選択</span>';return;}
+  b.innerHTML=`<div class="cir"><span class="cik">チャンク X</span><span class="civ y">${h.cx}</span></div><div class="cir"><span class="cik">チャンク Z</span><span class="civ y">${h.cz}</span></div><div class="cir"><span class="cik">ブロック X</span><span class="civ">${h.cx*16}〜${h.cx*16+15}</span></div><div class="cir"><span class="cik">ブロック Z</span><span class="civ">${h.cz*16}〜${h.cz*16+15}</span></div>`;
+}
+function updSel(){const n=MAP.sel.size;document.getElementById('del-lbl').textContent=`削除(${n})`;document.getElementById('btn-del').disabled=n===0;const sc=document.getElementById('sel-cnt');sc.style.display=n?'':'none';if(n)sc.textContent=n+' チャンク選択中';}
+const cv=document.getElementById('mapCanvas');
+cv.addEventListener('mousedown',e=>{MAP.drag={sx:e.offsetX,sz:e.offsetY,px:MAP.px,pz:MAP.pz,moved:false};});
+cv.addEventListener('mousemove',e=>{
+  if(MAP.drag){const dx=e.offsetX-MAP.drag.sx,dz=e.offsetY-MAP.drag.sz;if(Math.abs(dx)>2||Math.abs(dz)>2){MAP.drag.moved=true;cv.classList.add('pan');MAP.px=MAP.drag.px-dx/mz();MAP.pz=MAP.drag.pz-dz/mz();drawMap();return;}}
+  const h=stc(e.offsetX,e.offsetY);const hk=h?h.k:null;if(hk!==MAP.hov){MAP.hov=hk;drawMap();}showCI(h);
+});
+cv.addEventListener('mouseup',e=>{if(MAP.drag&&!MAP.drag.moved){const h=stc(e.offsetX,e.offsetY);if(h){if(MAP.sel.has(h.k))MAP.sel.delete(h.k);else MAP.sel.add(h.k);updSel();drawMap();}}cv.classList.remove('pan');MAP.drag=null;});
+cv.addEventListener('mouseleave',()=>{MAP.hov=null;MAP.drag=null;cv.classList.remove('pan');drawMap();showCI(null);});
+cv.addEventListener('wheel',e=>{e.preventDefault();const wx=e.offsetX/mz()+MAP.px,wz=e.offsetY/mz()+MAP.pz;if(e.deltaY<0&&MAP.zi<MAP.zooms.length-1)MAP.zi++;else if(e.deltaY>0&&MAP.zi>0)MAP.zi--;document.getElementById('z-lbl').textContent=mz()+'px/ch';MAP.px=wx-e.offsetX/mz();MAP.pz=wz-e.offsetY/mz();drawMap();},{passive:false});
+document.getElementById('btn-zi').onclick=()=>{if(MAP.zi<MAP.zooms.length-1){MAP.zi++;document.getElementById('z-lbl').textContent=mz()+'px/ch';drawMap();}};
+document.getElementById('btn-zo').onclick=()=>{if(MAP.zi>0){MAP.zi--;document.getElementById('z-lbl').textContent=mz()+'px/ch';drawMap();}};
+document.getElementById('btn-sel-all').onclick=()=>{if(WI<0)return;for(const{cx,cz}of WORLDS[WI].db?.chunks?.values()||[])MAP.sel.add(cx+':'+cz);updSel();drawMap();};
+document.getElementById('btn-desel').onclick=()=>{MAP.sel.clear();updSel();drawMap();};
+document.getElementById('btn-del').onclick=()=>{
+  if(WI<0||!MAP.sel.size)return;
+  if(!confirm(MAP.sel.size+'チャンクをDBから削除しますか？'))return;
+  const w=WORLDS[WI];
+  for(const k of MAP.sel){
+    w.db.chunks.delete(k);
+    const[cx,cz]=k.split(':').map(Number);
+    const classify=WB?key=>WB.classifyKey(key):classifyKeyJS;
+    for(const[hk,{key}]of w.db.kv){const c=classify(key);if(c.type==='chunk'&&c.x===cx&&c.z===cz)w.db.kv.delete(hk);}
+  }
+  MAP.sel.clear();processDB(w);drawMap();updSel();renderSidebar();updCnt();markMod();
+  badge('tc-db',w.db.kv.size);badge('tc-map',w.db.chunks.size);
+  st('チャンクをDBから削除しました');
+};
+
+// ══════════════════════════════════════════
+//  §11  TREE HELPERS
+// ══════════════════════════════════════════
+function expandAll(r){r.querySelectorAll('.nch.col').forEach(e=>e.classList.remove('col'));r.querySelectorAll('.ntog').forEach(t=>{if(t._o===false){t.innerHTML=SV('i-cd');t._o=true;}});}
+function collapseAll(r){r.querySelectorAll('.nch').forEach(e=>e.classList.add('col'));r.querySelectorAll('.ntog').forEach(t=>{if(t._o!==false){t.innerHTML=SV('i-cr');t._o=false;}});}
+document.getElementById('btn-exp').onclick=()=>expandAll(document.getElementById('dat-content'));
+document.getElementById('btn-col').onclick=()=>collapseAll(document.getElementById('dat-content'));
+document.getElementById('btn-pexp').onclick=()=>expandAll(document.getElementById('plr-content'));
+document.getElementById('btn-pcol').onclick=()=>collapseAll(document.getElementById('plr-content'));
+document.getElementById('s-input').addEventListener('input',e=>doSearch(e.target.value,document.getElementById('dat-content')));
+document.getElementById('btn-s-clr').onclick=()=>{document.getElementById('s-input').value='';doSearch('',document.getElementById('dat-content'));};
+
+// ══════════════════════════════════════════
+//  §12  SAVE / DOWNLOAD
+// ══════════════════════════════════════════
+function dl(bytes,name){const url=URL.createObjectURL(new Blob([bytes],{type:'application/octet-stream'}));const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),5000);}
+document.getElementById('btn-dat-save').onclick=async()=>{
+  if(WI<0||!WORLDS[WI].dat?.nbt)return;
+  const w=WORLDS[WI],d=w.dat;
+  const bytes=serBeDat(d.nbt,d.version);
+  if(w.zipId){
+    setLoad(true);prog('ZIP再パック中...');
+    const{zip,name}=ZIPS.get(w.zipId);
+    zip.file(d._ep,bytes);
+    const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+    dl(await blob.arrayBuffer(),name);st('保存: '+name);setLoad(false);
+  }else{dl(bytes,'level.dat');st('保存: level.dat');}
+  d.dirty=false;document.getElementById('sMod').style.display='none';
+};
+document.getElementById('btn-plr-save').onclick=()=>{
+  if(WI<0)return;const p=WORLDS[WI].db?.players?.[PLR];if(!p?.nbt)return;
+  const bytes=serNBT(p.nbt);
+  const fname=(p.ptype==='host'?'local_player':('player_'+p.id.slice(0,8)))+'.nbt';
+  dl(bytes,fname);st('エクスポート: '+fname);
+};
+
+// ══════════════════════════════════════════
+//  §13  STATUS / INIT
+// ══════════════════════════════════════════
+function st(msg,err){const el=document.getElementById('s-main');el.textContent=msg;el.className=err?'serr':'';}
+function prog(msg){document.getElementById('ldp').textContent=msg;}
+function setLoad(v){document.getElementById('ld').style.display=v?'flex':'none';if(!v)prog('');}
+function markMod(){document.getElementById('sMod').style.display='';}
+
+document.getElementById('fi').addEventListener('change',async e=>{const f=Array.from(e.target.files);if(f.length)await onFiles(f);e.target.value='';});
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',async e=>{e.preventDefault();dz.classList.remove('over');const f=Array.from(e.dataTransfer.files);if(f.length)await onFiles(f);});
+window.addEventListener('resize',()=>{if(!document.querySelector('[data-pane="map"]').classList.contains('hide')){resizeCv();drawMap();}});
+window.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  const mapOn=!document.querySelector('[data-pane="map"]').classList.contains('hide');
+  if(mapOn&&(e.key==='Delete'||e.key==='Backspace'))document.getElementById('btn-del').click();
+  if(mapOn&&e.ctrlKey&&e.key==='a'){e.preventDefault();document.getElementById('btn-sel-all').click();}
+});
+window.addEventListener('beforeunload',e=>{if(document.getElementById('sMod').style.display!=='none'){e.preventDefault();e.returnValue='';}});
+
+// ══════════════════════════════════════════
+//  §14  FILE TREE
+// ══════════════════════════════════════════
+
+// Build a nested tree object from a JSZip instance
+function buildZipTree(zip) {
+  const root = { name:'', isDir:true, children:{}, path:'' };
+  const paths = Object.keys(zip.files).sort();
+  for (const ep of paths) {
+    const isDir = zip.files[ep].dir;
+    const clean = isDir ? ep.replace(/\/$/, '') : ep;
+    const parts = clean.split('/').filter(Boolean);
+    if (!parts.length) continue;
+    let node = root;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const seg = parts[i];
+      if (!node.children[seg]) node.children[seg] = { name:seg, isDir:true, children:{}, path: parts.slice(0,i+1).join('/') };
+      node = node.children[seg];
+    }
+    const last = parts[parts.length-1];
+    if (isDir) {
+      if (!node.children[last]) node.children[last] = { name:last, isDir:true, children:{}, path: clean };
+    } else {
+      node.children[last] = { name:last, isDir:false, children:{}, path:ep, size: zip.files[ep]._data?.uncompressedSize ?? 0 };
+    }
+  }
+  return root;
+}
+
+// File ext helpers
+function fileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  if (['json','mcmeta','txt','mcfunction','lang','cfg','ini','properties'].includes(ext)) return 'txt';
+  if (['dat','nbt','ldb','sst','log'].includes(ext)) return 'dat';
+  return '';
+}
+function isTextFile(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  return ['json','mcmeta','txt','mcfunction','lang','cfg','ini','properties','md','yaml','yml','mcstructure'].includes(ext);
+}
+
+// Render file tree for the currently selected world
+function renderFileTree() {
+  const sect = document.getElementById('ft-sect');
+  const wrap = document.getElementById('ft-wrap');
+  if (WI < 0) { sect.classList.remove('on'); return; }
+  const w = WORLDS[WI];
+  if (!w.zipId) {
+    // Standalone: show files map
+    sect.classList.add('on');
+    wrap.innerHTML = '';
+    renderStandaloneTree(w, wrap);
+    return;
+  }
+  const { zip } = ZIPS.get(w.zipId);
+  sect.classList.add('on');
+  wrap.innerHTML = '';
+  const tree = buildZipTree(zip);
+  const sorted = sortedChildren(tree);
+  for (const child of sorted) renderFTNode(child, wrap, w.zipId);
+}
+
+function sortedChildren(node) {
+  const kids = Object.values(node.children);
+  return kids.sort((a,b) => {
+    if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+}
+
+function renderFTNode(node, container, zipId, depth=0) {
+  const div = document.createElement('div');
+  div.className = 'ft-node';
+
+  const row = document.createElement('div');
+  row.className = 'ft-row';
+  row.style.paddingLeft = (4 + depth * 12) + 'px';
+
+  // toggle
+  const tog = document.createElement('span');
+  tog.className = 'ft-tog';
+  if (node.isDir) tog.innerHTML = '▼';
+  else tog.innerHTML = '';
+  row.appendChild(tog);
+
+  // icon
+  const ico = document.createElement('span');
+  ico.className = 'ft-ico ' + (node.isDir ? 'dir' : 'file ' + fileIcon(node.name));
+  ico.innerHTML = node.isDir
+    ? `<svg width="11" height="11" style="stroke:currentColor"><use href="#i-folder"/></svg>`
+    : `<svg width="10" height="10" style="stroke:currentColor"><use href="#i-file"/></svg>`;
+  row.appendChild(ico);
+
+  // label
+  const lbl = document.createElement('span');
+  lbl.className = 'ft-lbl ' + (node.isDir ? 'dir' : '');
+  lbl.textContent = node.name;
+  lbl.title = node.path;
+  row.appendChild(lbl);
+
+  // action buttons (appear on hover)
+  const acts = document.createElement('span');
+  acts.className = 'ft-acts';
+  if (node.isDir) {
+    acts.innerHTML =
+      `<button class="ftbtn" title="ここにファイルをアップロード" onclick="ftUploadTo('${CSS.escape(node.path)}','${zipId}');event.stopPropagation()"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-up"/></svg></button>` +
+      `<button class="ftbtn" title="新規ファイル" onclick="ftNewFileAt('${CSS.escape(node.path)}','${zipId}');event.stopPropagation()"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-file"/></svg>+</button>` +
+      `<button class="ftbtn" title="新規フォルダ" onclick="ftNewDirAt('${CSS.escape(node.path)}','${zipId}');event.stopPropagation()"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-folder-plus"/></svg>+</button>` +
+      `<button class="ftbtn del" title="フォルダを削除" onclick="ftDeleteNode('${CSS.escape(node.path)}',true,'${zipId}');event.stopPropagation()"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-trash"/></svg></button>`;
+  } else {
+    acts.innerHTML =
+      `<button class="ftbtn" title="編集/表示" onclick="ftOpenFile('${CSS.escape(node.path)}','${zipId}');event.stopPropagation()"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-edit"/></svg></button>` +
+      `<button class="ftbtn" title="ダウンロード" onclick="ftDownloadFile('${CSS.escape(node.path)}','${zipId}');event.stopPropagation()"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-dl"/></svg></button>` +
+      `<button class="ftbtn del" title="削除" onclick="ftDeleteNode('${CSS.escape(node.path)}',false,'${zipId}');event.stopPropagation()"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-trash"/></svg></button>`;
+  }
+  row.appendChild(acts);
+  div.appendChild(row);
+
+  // children
+  if (node.isDir) {
+    const ch = document.createElement('div');
+    ch.className = 'ft-ch';
+    const kids = sortedChildren(node);
+    for (const kid of kids) renderFTNode(kid, ch, zipId, 0);
+    div.appendChild(ch);
+
+    let open = true;
+    tog.onclick = (e) => {
+      e.stopPropagation();
+      open = !open;
+      ch.classList.toggle('col', !open);
+      ico.innerHTML = open
+        ? `<svg width="11" height="11" style="stroke:currentColor"><use href="#i-folder-open"/></svg>`
+        : `<svg width="11" height="11" style="stroke:currentColor"><use href="#i-folder"/></svg>`;
+      tog.innerHTML = open ? '▼' : '▶';
+    };
+    row.onclick = (e) => { if (e.target === tog) return; tog.onclick(e); };
+  } else {
+    row.onclick = () => ftOpenFile(node.path, zipId);
+  }
+
+  container.appendChild(div);
+}
+
+function renderStandaloneTree(w, wrap) {
+  const files = [...(w.db?._files?.keys()||[])];
+  if (w.dat) files.unshift('level.dat');
+  if (!files.length) { wrap.innerHTML = '<div style="padding:8px;color:var(--mut);font-size:9px;text-align:center">ファイルなし</div>'; return; }
+  for (const fname of files) {
+    const row = document.createElement('div');
+    row.className = 'ft-row';
+    row.style.paddingLeft = '8px';
+    const ico = `<span class="ft-ico file ${fileIcon(fname)}"><svg width="10" height="10" style="stroke:currentColor"><use href="#i-file"/></svg></span>`;
+    const lbl = `<span class="ft-lbl">${ESC(fname)}</span>`;
+    const acts = `<span class="ft-acts"><button class="ftbtn del" title="削除" onclick="ftDeleteStandalone('${CSS.escape(fname)}');event.stopPropagation()"><svg width="9" height="9" style="stroke:currentColor"><use href="#i-trash"/></svg></button></span>`;
+    row.innerHTML = `<span class="ft-tog"></span>${ico}${lbl}${acts}`;
+    wrap.appendChild(row);
+  }
+}
+
+// ── File Operations ──────────────────────────
+
+// Upload files to a specific ZIP directory
+window.ftUploadTo = function(dirPath, zipId) {
+  const inp = document.getElementById('ft-upload-input');
+  inp.onchange = async () => {
+    const files = Array.from(inp.files);
+    if (!files.length) return;
+    const { zip } = ZIPS.get(zipId);
+    for (const f of files) {
+      const buf = await readBuf(f);
+      const target = dirPath ? dirPath + '/' + f.name : f.name;
+      zip.file(target, buf);
+    }
+    inp.value = '';
+    renderFileTree();
+    markMod();
+    st(`${files.length}件アップロード完了`);
+  };
+  inp.click();
+};
+
+// Upload to root
+document.getElementById('ft-btn-upload').onclick = () => {
+  if (WI < 0) return;
+  const w = WORLDS[WI];
+  if (w.zipId) ftUploadTo('', w.zipId);
+};
+
+// Create new file at path
+window.ftNewFileAt = function(dirPath, zipId) {
+  const name = prompt('新規ファイル名:');
+  if (!name || !name.trim()) return;
+  const { zip } = ZIPS.get(zipId);
+  const target = dirPath ? dirPath + '/' + name.trim() : name.trim();
+  if (zip.files[target]) { alert('同名のファイルが既に存在します'); return; }
+  zip.file(target, '');
+  renderFileTree();
+  markMod();
+  st('作成: ' + target);
+  ftOpenFile(target, zipId);
+};
+
+// Create new folder
+window.ftNewDirAt = function(dirPath, zipId) {
+  const name = prompt('新規フォルダ名:');
+  if (!name || !name.trim()) return;
+  const { zip } = ZIPS.get(zipId);
+  const target = (dirPath ? dirPath + '/' : '') + name.trim() + '/';
+  zip.folder(target.replace(/\/$/, ''));
+  renderFileTree();
+  markMod();
+  st('フォルダ作成: ' + target);
+};
+
+// New file at root
+document.getElementById('ft-btn-newfile').onclick = () => {
+  if (WI < 0) return;
+  const w = WORLDS[WI];
+  if (w.zipId) ftNewFileAt('', w.zipId);
+};
+
+// New folder at root
+document.getElementById('ft-btn-newdir').onclick = () => {
+  if (WI < 0) return;
+  const w = WORLDS[WI];
+  if (w.zipId) ftNewDirAt('', w.zipId);
+};
+
+// Delete node (file or folder)
+window.ftDeleteNode = function(path, isDir, zipId) {
+  const msg = isDir ? `フォルダ「${path}」とその中身を全て削除しますか？` : `ファイル「${path}」を削除しますか？`;
+  if (!confirm(msg)) return;
+  const { zip } = ZIPS.get(zipId);
+  if (isDir) {
+    // Remove all entries under this folder
+    const prefix = path + '/';
+    Object.keys(zip.files).forEach(ep => {
+      if (ep === path || ep === path + '/' || ep.startsWith(prefix)) zip.remove(ep);
+    });
+  } else {
+    zip.remove(path);
+  }
+  renderFileTree();
+  markMod();
+  st('削除: ' + path);
+};
+
+window.ftDeleteStandalone = function(fname) {
+  if (!confirm(`「${fname}」を削除しますか？`)) return;
+  const w = WORLDS[WI];
+  if (fname === 'level.dat') w.dat = null;
+  else w.db?._files?.delete(fname);
+  renderFileTree();
+  markMod();
+  st('削除: ' + fname);
+};
+
+// Download file
+window.ftDownloadFile = async function(path, zipId) {
+  const { zip } = ZIPS.get(zipId);
+  const entry = zip.files[path];
+  if (!entry) { st('ファイルが見つかりません', true); return; }
+  const buf = await entry.async('arraybuffer');
+  dl(buf, path.split('/').pop());
+  st('DL: ' + path.split('/').pop());
+};
+
+// ── File Edit Modal ──────────────────────────
+
+let _ftModal = { path: null, zipId: null, isBin: false };
+
+window.ftOpenFile = async function(path, zipId) {
+  const { zip } = ZIPS.get(zipId);
+  const entry = zip.files[path];
+  if (!entry || entry.dir) return;
+  const name = path.split('/').pop();
+  _ftModal = { path, zipId, isBin: !isTextFile(name) };
+
+  document.getElementById('ft-mpath').textContent = path;
+  document.getElementById('ft-modal').classList.add('on');
+  document.getElementById('ft-minfo').textContent = '読み込み中...';
+
+  const buf = await entry.async('arraybuffer');
+  const bytes = new Uint8Array(buf);
+  document.getElementById('ft-minfo').textContent = `${bytes.length.toLocaleString()} bytes`;
+
+  if (_ftModal.isBin) {
+    // Hex view
+    document.getElementById('ft-mtextarea').style.display = 'none';
+    document.getElementById('ft-m-save').disabled = true;
+    const hexEl = document.getElementById('ft-hexview');
+    hexEl.style.display = '';
+    renderHexView(bytes, 0);
+  } else {
+    document.getElementById('ft-hexview').style.display = 'none';
+    document.getElementById('ft-m-save').disabled = false;
+    const ta = document.getElementById('ft-mtextarea');
+    ta.style.display = '';
+    ta.value = new TextDecoder('utf-8', { fatal: false }).decode(buf);
+  }
+};
+
+let _ftHexBytes = null;
+let _ftHexPage = 0;
+const FT_HEX_PAGE = 256; // bytes per page
+
+function hexDump(bytes, offset=0, count=FT_HEX_PAGE) {
+  let out = '';
+  const end = Math.min(offset + count, bytes.length);
+  for (let i = offset; i < end; i += 16) {
+    const row = bytes.slice(i, Math.min(i + 16, end));
+    const hex = Array.from(row).map(b => b.toString(16).padStart(2,'0')).join(' ');
+    const asc = Array.from(row).map(b => (b >= 32 && b < 127) ? String.fromCharCode(b) : '.').join('');
+    out += i.toString(16).padStart(6,'0') + '  ' + hex.padEnd(48) + '  ' + asc + '\n';
+  }
+  return out;
+}
+
+function renderHexView(bytes, page=0) {
+  _ftHexBytes = bytes;
+  _ftHexPage = page;
+  const hexEl = document.getElementById('ft-hexview');
+  const offset = page * FT_HEX_PAGE;
+  const total = bytes.length;
+  let out = hexDump(bytes, offset, FT_HEX_PAGE);
+  const shown = Math.min(offset + FT_HEX_PAGE, total);
+  hexEl.textContent = out;
+  // load-more button area
+  let ctrl = document.getElementById('ft-hex-ctrl');
+  if (!ctrl) { ctrl = document.createElement('div'); ctrl.id = 'ft-hex-ctrl'; ctrl.style.cssText='padding:4px 7px;display:flex;gap:5px;align-items:center;background:var(--bg2);border-bottom:1px solid var(--bdr);'; hexEl.parentNode.insertBefore(ctrl, hexEl); }
+  const pages = Math.ceil(total / FT_HEX_PAGE);
+  ctrl.innerHTML = `<span style="font-size:8px;color:var(--mut);flex:1">${shown.toLocaleString()} / ${total.toLocaleString()} bytes (ページ ${page+1}/${pages})</span>`;
+  if (page > 0) ctrl.innerHTML += `<button class="btn" style="font-size:8px" onclick="renderHexView(_ftHexBytes,${page-1})">◀ 前</button>`;
+  if (shown < total) ctrl.innerHTML += `<button class="btn prim" style="font-size:8px" onclick="renderHexView(_ftHexBytes,${page+1})">次 ▶</button>`;
+}
+
+document.getElementById('ft-m-close').onclick = () => {
+  document.getElementById('ft-modal').classList.remove('on');
+  _ftModal = { path:null, zipId:null, isBin:false };
+};
+
+document.getElementById('ft-m-save').onclick = async () => {
+  if (!_ftModal.path || _ftModal.isBin) return;
+  const { zip } = ZIPS.get(_ftModal.zipId);
+  const text = document.getElementById('ft-mtextarea').value;
+  zip.file(_ftModal.path, text);
+  markMod();
+  st('保存: ' + _ftModal.path.split('/').pop());
+  document.getElementById('ft-modal').classList.remove('on');
+  renderFileTree();
+};
+
+document.getElementById('ft-m-dl').onclick = () => {
+  if (!_ftModal.path) return;
+  ftDownloadFile(_ftModal.path, _ftModal.zipId);
+};
+
+// Close modal on backdrop click
+document.getElementById('ft-modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('ft-modal')) document.getElementById('ft-m-close').click();
+});
+
+// ── Key: Escape closes modal ──
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('ft-modal').classList.contains('on')) {
+    document.getElementById('ft-m-close').click();
+  }
+}, true);
+
+// Boot: init WASM then mark ready
+initWasm().then(()=>st('準備完了'));
+</script>
+</body>
+</html>
